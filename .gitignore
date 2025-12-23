@@ -1,0 +1,12 @@
+# Ignorar archivos de configuración
+config.yaml
+.env
+.vscode
+
+# Ignorar carpetas
+node_modules/
+__pycache__/
+venv/
+
+# Ignorar archivos temporales
+*.log
