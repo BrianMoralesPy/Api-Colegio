@@ -11,7 +11,7 @@ from schemas.usuario import UsuarioOut
 from schemas.alumno import AlumnoOut
 from schemas.profesor import ProfesorOut
 from schemas.me import MeResponse
-from models.enums import PerfilUsuario,EstadosAlumno
+from models.enums import PerfilUsuario,EstadosAlumno,TiposContrato
 import uuid
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -50,6 +50,40 @@ def register_alumno(data: RegisterAlumno,session: Session = Depends(get_session)
     session.commit()
     return {"ok": True, "user_id": user_id}
 
+@router.post("/register/profesor")
+def register_profesor(data: RegisterProfesor,session: Session = Depends(get_session)):
+    try:
+        auth_user = supabase.auth.admin.create_user({
+            "email": data.email,
+            "password": data.password,
+            "email_confirm": True
+        })
+    except Exception:
+        raise HTTPException(status_code=400,detail="El email ya está registrado")
+
+    user_id = uuid.UUID(auth_user.user.id)
+    usuario = Usuario(
+        id=user_id,
+        nombre=data.nombre,
+        apellido=data.apellido,
+        edad=data.edad,
+        perfil=PerfilUsuario.profesor,
+    )
+    session.add(usuario)
+    session.flush()
+    
+    profesor =  Profesor(
+        id=user_id,
+        titulo=None,
+        especialidad=None,
+        fecha_contratacion=None,
+        legajo=None,
+        tipo_contrato=None,
+        activo=False
+    )
+    session.add(profesor)
+    session.commit()
+    return {"ok": True, "user_id": user_id}
 
 @router.post("/verificar-credenciales") # VERIFICAR CREDENCIALES, ACA PONES MAIL Y CONTRASEÑA Y SI ESTA BIEN TE DEVUELVE EL TOKEN
 def verificar_credenciales(data: LoginSchema):

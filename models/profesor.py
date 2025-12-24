@@ -24,8 +24,7 @@ class Profesor(SQLModel, table=True):
                 name="tipos_contrato", 
                 native_enum=True
             ),
-            nullable=False
+            nullable=True
         )
     )
-    observaciones: str
     activo: bool = False
