@@ -13,7 +13,6 @@ from schemas.profesor import ProfesorOut
 from schemas.me import MeResponse
 from models.enums import PerfilUsuario,EstadosAlumno,TiposContrato
 import uuid
-
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/register/alumno")
@@ -67,7 +66,7 @@ def register_profesor(data: RegisterProfesor,session: Session = Depends(get_sess
         nombre=data.nombre,
         apellido=data.apellido,
         edad=data.edad,
-        perfil=PerfilUsuario.profesor,
+        perfil=PerfilUsuario.profesor
     )
     session.add(usuario)
     session.flush()
@@ -113,11 +112,10 @@ def verificar_credenciales(data: LoginSchema):
     }
 
 @router.get("/me", response_model=MeResponse) # Y ACA PONES EL TOKEN Y TE DEVUELVE EL USUARIO PARA MANEJAR LA SESION ACTUAL OSEA SI ENTRAS AL HOME, ETC
-def me(user=Depends(get_current_user),session: Session = Depends(get_session)):
+def me(user=Depends(get_current_user), session: Session = Depends(get_session)):
     usuario = session.get(Usuario, user["sub"])
     if not usuario:
         raise HTTPException(404, "Usuario no registrado")
-
     data = {
         "usuario": UsuarioOut.model_validate(usuario)
     }

@@ -2,12 +2,14 @@
 config.yaml
 .env
 .vscode
+cuentas_prueba.txt
 
 # Ignorar carpetas
 node_modules/
 __pycache__/
 venv/
-scripts
+scripts/
 
 # Ignorar archivos temporales
 *.log
+

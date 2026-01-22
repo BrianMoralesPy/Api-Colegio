@@ -5,7 +5,7 @@ from sqlalchemy import Column
 from sqlalchemy.types import Enum as SAEnum
 from models.enums import EstadosAlumno
 import uuid
-
+# lo que usamos aca y en todo donde estan los models son las tablas de las bases de datos y los enums que tambien estan en la base de datos
 class Alumno(SQLModel, table=True):
     __tablename__ = "alumnos"
 

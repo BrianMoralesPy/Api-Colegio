@@ -10,8 +10,28 @@ class AlumnoOut(BaseModel):
     legajo: Optional[str]
     fecha_ingreso: Optional[date]
     estado: EstadosAlumno
-    activo: bool
     observaciones: Optional[str]
-
+    activo: bool
+    
     class Config:
         from_attributes = True
+    
+
+class AlumnoOutFull(BaseModel):
+    id: UUID
+    nombre: str
+    apellido: str
+    edad: int
+    perfil: Optional[str]
+    legajo: Optional[str]
+    fecha_ingreso: Optional[date]
+    estado: EstadosAlumno
+    observaciones: Optional[str]
+    activo: bool
+
+class AlumnoUpdate(BaseModel):
+    legajo: Optional[str] = None
+    fecha_ingreso: Optional[date] = None
+    estado: Optional[EstadosAlumno] = None
+    activo: Optional[bool] = None
+    observaciones: Optional[str] = None
