@@ -1,0 +1,18 @@
+1 - python -m venv venv : Crear el entorno local
+2 - venv\Scripts\activate : activar el entorno local
+3 - pip install -r requirements.txt : instalar los requirimientos del proyecto
+4 - crear el .env con las api keys de supabase :
+    SUPABASE_URL = Settings -> Data API -> URL
+    DATABASE_URL = postgresql://postgres.PROJECTID:DATABASEPASSWORD@aws-1-sa-east-1.pooler.supabase.com:6543/postgres
+    PROJECTID = Settings -> General -> Project ID
+    DATABASEPASSWORD = Database -> Settings -> Database Password
+    SUPABASE_JWT_SECRET = Settings -> JWT Keys -> Legacy JWT Secret
+    SUPABASE_SERVICE_ROLE_KEY = Settings -> API Keys -> Legacy Anon and Service Role -> service_role
+5 -
+  ALUMNOS
+    "email": "user1@example.com",
+    "password": "String123123",
+  PROFESORES
+    "email": "user2@example.com",
+    "password": "String123456",
+

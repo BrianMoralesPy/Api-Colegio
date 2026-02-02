@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from uuid import UUID
-
+from core.supabase import supabase
 from core.database import get_session
 from models.alumno import Alumno
 from models.usuario import Usuario
 from models.enums import PerfilUsuario
+from models.historial_contrasenas import HistorialContrasenas
+from schemas.usuario import UsuarioUpdate
 from schemas.alumno import AlumnoUpdate,AlumnoOutFull
 
 router = APIRouter(prefix="/alumnos", tags=["Alumnos"])
@@ -67,5 +69,53 @@ def get_alumno(alumno_id: UUID,session: Session = Depends(get_session),):
         observaciones=alumno.observaciones,
         activo=alumno.activo
     )
+
+@router.delete("/{alumno_id}")
+def delete_alumno(alumno_id: UUID,session: Session = Depends(get_session),):
+    alumno = session.get(Alumno, alumno_id)
+    if not alumno:
+        raise HTTPException(404, "Alumno no encontrado")
+
+    usuario = session.get(Usuario, alumno.id)
+    if not usuario:
+        raise HTTPException(500, "Usuario inconsistente")
+
+    try:
+        session.query(HistorialContrasenas).filter(HistorialContrasenas.user_id == usuario.id).delete()
+        session.delete(alumno)
+        session.delete(usuario)
+        session.commit()
+        supabase.auth.admin.delete_user(str(usuario.id))
+
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al eliminar alumno: {str(e)}"
+        )
+
+    return {"detail": "Alumno eliminado definitivamente"}
+
+@router.put("/{alumno_id}")
+def update_alumno(alumno_id:UUID,alumno_data:AlumnoUpdate,usuario_data:UsuarioUpdate,session:Session=Depends(get_session),):
+    alumno = session.get(Alumno, alumno_id)
+    if not alumno:
+        raise HTTPException(404, "Alumno no encontrado")
+    
+    usuario = session.get(Usuario, alumno.id)
+    if not usuario:
+        raise HTTPException(500, "Usuario inconsistente")
+    #Actualizar Alumno
+    for field, value in alumno_data.model_dump(exclude_unset=True).items():
+        setattr(alumno, field, value)
+    #Actualizar Usuario
+    for field, value in usuario_data.model_dump(exclude_unset=True).items():
+        setattr(usuario, field, value)
+    
+    session.commit()
+    session.refresh(alumno)
+    session.refresh(usuario)
+    return {"detail":"Alumno actualizado correctamente"}
+
 
 

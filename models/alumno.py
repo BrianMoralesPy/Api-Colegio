@@ -9,25 +9,9 @@ import uuid
 class Alumno(SQLModel, table=True):
     __tablename__ = "alumnos"
 
-    id: uuid.UUID = Field(
-        primary_key=True,
-        foreign_key="usuarios.id"
-    )
-
+    id: uuid.UUID = Field(primary_key=True,foreign_key="usuarios.id")
     legajo: Optional[str] = None
     fecha_ingreso: Optional[date] = None
-
-    estado: Optional[EstadosAlumno] = Field(
-        default=EstadosAlumno.pendiente,
-        sa_column=Column(
-            SAEnum(
-                EstadosAlumno,
-                name="estados_alumno",
-                native_enum=True
-            ),
-            nullable=False
-        )
-    )
-
+    estado: Optional[EstadosAlumno] = Field(default=EstadosAlumno.pendiente,sa_column=Column(SAEnum(EstadosAlumno,name="estados_alumno",native_enum=True),nullable=False))
     observaciones: Optional[str] = None
     activo: bool = False

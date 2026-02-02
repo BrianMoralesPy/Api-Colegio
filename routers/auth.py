@@ -6,12 +6,16 @@ from core.database import get_session
 from models.usuario import Usuario
 from models.alumno import Alumno
 from models.profesor import Profesor
-from schemas.auth import RegisterAlumno, RegisterProfesor, RegisterAdmin, LoginSchema
+from schemas.auth import RegisterAlumno, RegisterProfesor, LoginSchema
 from schemas.usuario import UsuarioOut
 from schemas.alumno import AlumnoOut
 from schemas.profesor import ProfesorOut
 from schemas.me import MeResponse
-from models.enums import PerfilUsuario,EstadosAlumno,TiposContrato
+from models.enums import PerfilUsuario,EstadosAlumno
+from models.historial_contrasenas import HistorialContrasenas
+from core.passwords import hash_password
+
+
 import uuid
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -46,6 +50,10 @@ def register_alumno(data: RegisterAlumno,session: Session = Depends(get_session)
         activo=False
     )
     session.add(alumno)
+
+    historial = HistorialContrasenas(user_id=user_id,contrasena_hasheada=hash_password(data.password))
+    session.add(historial)
+    
     session.commit()
     return {"ok": True, "user_id": user_id}
 
@@ -81,6 +89,10 @@ def register_profesor(data: RegisterProfesor,session: Session = Depends(get_sess
         activo=False
     )
     session.add(profesor)
+    
+    historial = HistorialContrasenas(user_id=user_id,contrasena_hasheada=hash_password(data.password))
+    session.add(historial)
+    
     session.commit()
     return {"ok": True, "user_id": user_id}
 
@@ -128,9 +140,7 @@ def me(user=Depends(get_current_user), session: Session = Depends(get_session)):
 
     elif usuario.perfil == PerfilUsuario.profesor:
         profesor = session.get(Profesor, usuario.id)
-        data["profesor"] = (
-            ProfesorOut.model_validate(profesor) if profesor else None
-        )
+        data["profesor"] = (ProfesorOut.model_validate(profesor) if profesor else None)
 
     return data
 
