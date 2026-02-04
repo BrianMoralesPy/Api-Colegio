@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr,field_validator
+from pydantic import BaseModel, EmailStr,field_validator,Field
 from models.enums import PerfilUsuario
 import re
 
@@ -53,3 +53,7 @@ class LoginSchema(BaseModel):
         if not value.strip():
             raise ValueError("La contraseña es obligatoria")
         return value
+
+class ResetPasswordSchema(BaseModel):
+    user_id: str = Field(..., description="UUID del usuario")
+    new_password: str = Field(...,min_length=8)

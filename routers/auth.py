@@ -6,7 +6,7 @@ from core.database import get_session
 from models.usuario import Usuario
 from models.alumno import Alumno
 from models.profesor import Profesor
-from schemas.auth import RegisterAlumno, RegisterProfesor, LoginSchema
+from schemas.auth import RegisterAlumno, RegisterProfesor, LoginSchema,ResetPasswordSchema
 from schemas.usuario import UsuarioOut
 from schemas.alumno import AlumnoOut
 from schemas.profesor import ProfesorOut
@@ -144,10 +144,11 @@ def me(user=Depends(get_current_user), session: Session = Depends(get_session)):
 
     return data
 
+@router.post("/reset-password") # ENDPOINT PARA RESETEAR CONTRASEÑA
+def reset_password(data:ResetPasswordSchema):
+    try:
+        supabase.auth.admin.update_user_by_id(data.user_id,{"password": data.new_password})
+    except Exception:
+        raise HTTPException(status_code=400,detail="Error al actualizar la contraseña")
 
-
-
-
-
-
-
+    return {"ok": True, "message": "Contraseña actualizada correctamente"}
