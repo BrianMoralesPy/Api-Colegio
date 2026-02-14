@@ -99,12 +99,13 @@ def update_alumno(profesor_id:UUID,profesor_data:ProfesorUpdate,usuario_data:Usu
     usuario = session.get(Usuario, profesor.id)
     if not usuario:
         raise HTTPException(500, "Usuario inconsistente")
+    
     #Actualizar Profesor
-    for field, value in profesor_data.model_dump(exclude_unset=True).items():
-        setattr(profesor, field, value)
+    for key, value in profesor_data.model_dump(exclude_unset=True).items():
+        setattr(profesor, key, value)
     #Actualizar Usuario
-    for field, value in usuario_data.model_dump(exclude_unset=True).items():
-        setattr(usuario, field, value)
+    for key, value in usuario_data.model_dump(exclude_unset=True).items():
+        setattr(usuario, key, value)
     
     session.commit()
     session.refresh(profesor)
