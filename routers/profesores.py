@@ -1,13 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from uuid import UUID
-from core.database import get_session
+from configuration import get_session
 from models.profesor import Profesor
 from models.usuario import Usuario
-from models.enums import TiposContrato
 from schemas.profesor import ProfesorUpdate, ProfesorOutFull
 from schemas.usuario import UsuarioUpdate
-from core.supabase import supabase
+from configuration import supabase
 from models.historial_contrasenas import HistorialContrasenas
 
 router = APIRouter(prefix="/profesores", tags=["Profesores"])
@@ -91,7 +90,7 @@ def delete_profesor(profesor_id: UUID,session: Session = Depends(get_session),):
     return {"detail": "Profesor eliminado definitivamente"}
 
 @router.put("/{profesor_id}")
-def update_alumno(profesor_id:UUID,profesor_data:ProfesorUpdate,usuario_data:UsuarioUpdate,session:Session=Depends(get_session),):
+def update_profesor(profesor_id:UUID,profesor_data:ProfesorUpdate,usuario_data:UsuarioUpdate,session:Session=Depends(get_session),):
     profesor = session.get(Profesor, profesor_id)
     if not profesor:
         raise HTTPException(404, "Profesor no encontrado")

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
-from core.supabase import supabase
-from core.security import get_current_user
-from core.database import get_session
+from configuration import supabase
+from configuration import get_current_user
+from configuration import get_session
 from models.usuario import Usuario
 from models.alumno import Alumno
 from models.profesor import Profesor
@@ -13,7 +13,7 @@ from schemas.profesor import ProfesorOut
 from schemas.me import MeResponse
 from models.enums import PerfilUsuario,EstadosAlumno
 from models.historial_contrasenas import HistorialContrasenas
-from core.passwords import hash_password
+from configuration import hash_password
 
 
 import uuid

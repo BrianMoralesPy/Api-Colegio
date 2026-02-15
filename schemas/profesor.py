@@ -30,7 +30,7 @@ class ProfesorOutFull(BaseModel):
     tipo_contrato: Optional[TiposContrato]
     activo: bool
 
-class ProfesorUpdate(BaseModel):
+class  ProfesorUpdate(BaseModel):
     fecha_contratacion: Optional[date] = None
     titulo: Optional[str] = Field(default=None, min_length=2, max_length=50)
     especialidad: Optional[str] = Field(default=None, min_length=2, max_length=50)

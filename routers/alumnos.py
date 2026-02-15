@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from uuid import UUID
-from core.supabase import supabase
-from core.database import get_session
+from configuration import supabase
+from configuration import get_session
 from models.alumno import Alumno
 from models.usuario import Usuario
-from models.enums import PerfilUsuario
 from models.historial_contrasenas import HistorialContrasenas
 from schemas.usuario import UsuarioUpdate
 from schemas.alumno import AlumnoUpdate,AlumnoOutFull
