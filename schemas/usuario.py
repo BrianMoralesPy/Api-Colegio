@@ -4,13 +4,14 @@ from uuid import UUID
 from models.enums import PerfilUsuario
 import re
 
-
+# Este schema se utiliza para representar la información de un usuario, incluyendo su nombre, apellido, edad y perfil. También se incluye una clase para actualizar la información del usuario, con validaciones para los campos de texto y edad.
 class UsuarioOut(BaseModel):
     id: UUID
     nombre: str
     apellido: str
     edad: int
     perfil: PerfilUsuario
+    foto_url: Optional[str] = None
 
     class Config:
         from_attributes = True

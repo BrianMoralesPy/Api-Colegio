@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
-from configuration import supabase
-from configuration import get_current_user
-from configuration import get_session
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File # Importa las clases y funciones necesarias de FastAPI para crear rutas, manejar dependencias y lanzar excepciones HTTP
+from sqlmodel import Session # Importa la clase Session de SQLModel para manejar las sesiones de base de datos
+from configuration import supabase # Importa la instancia de Supabase desde el archivo de configuración
+from configuration import get_current_user # Importa la función get_current_user para obtener el usuario autenticado a partir del token de acceso
+from configuration import get_session # Importa la función get_session para obtener una sesión de base de datos
 from models.usuario import Usuario
 from models.alumno import Alumno
 from models.profesor import Profesor
@@ -14,10 +14,10 @@ from schemas.me import MeResponse
 from models.enums import PerfilUsuario,EstadosAlumno
 from models.historial_contrasenas import HistorialContrasenas
 from configuration import hash_password
-
-
 import uuid
-router = APIRouter(prefix="/auth", tags=["Auth"])
+from uuid import UUID,uuid4
+
+router = APIRouter(prefix="/auth", tags=["Auth"]) # Crea un router de FastAPI con el prefijo "/auth" para agrupar las rutas relacionadas con la autenticación y asigna la etiqueta "Auth" para la documentación automática
 
 @router.post("/register/alumno")
 def register_alumno(data: RegisterAlumno,session: Session = Depends(get_session)):
@@ -143,6 +143,32 @@ def me(user=Depends(get_current_user), session: Session = Depends(get_session)):
         data["profesor"] = (ProfesorOut.model_validate(profesor) if profesor else None)
 
     return data
+
+@router.post("/me/avatar") # ENDPOINT PARA SUBIR FOTO DE PERFIL
+def upload_avatar(file: UploadFile = File(...),user=Depends(get_current_user),session: Session = Depends(get_session)):
+    user_id = UUID(user["sub"])
+    if file.content_type not in ["image/jpeg", "image/png", "image/webp"]:
+        raise HTTPException(400, "Formato de imagen no permitido")
+
+    extension = file.filename.split(".")[-1]
+    filename = f"{user_id}-{uuid4()}.{extension}"
+    contents = file.file.read()
+    
+    try:
+        supabase.storage.from_("fotos_perfil").upload(filename,contents,{"content-type": file.content_type})
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    
+    public_url = supabase.storage.from_("fotos_perfil").get_public_url(filename)
+    usuario = session.get(Usuario, user_id)
+    
+    if not usuario:
+        raise HTTPException(404, "Usuario no encontrado")
+
+    usuario.foto_url = public_url
+    session.commit()
+
+    return {"fotos_perfil_url": public_url}
 
 @router.post("/reset-password") # ENDPOINT PARA RESETEAR CONTRASEÑA
 def reset_password(data:ResetPasswordSchema):

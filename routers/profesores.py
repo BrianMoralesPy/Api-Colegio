@@ -1,15 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
+from fastapi import APIRouter, Depends, HTTPException # Importa las clases y funciones necesarias de FastAPI para crear rutas, manejar dependencias y lanzar excepciones HTTP
+from sqlmodel import Session #  Importa la clase Session de SQLModel para manejar las sesiones de base de datos
+from configuration import get_session # Importa la función get_session para obtener una sesión de base de datos
+from configuration import supabase # Importa la instancia de Supabase desde el archivo de configuración
 from uuid import UUID
-from configuration import get_session
 from models.profesor import Profesor
 from models.usuario import Usuario
 from schemas.profesor import ProfesorUpdate, ProfesorOutFull
 from schemas.usuario import UsuarioUpdate
-from configuration import supabase
 from models.historial_contrasenas import HistorialContrasenas
 
-router = APIRouter(prefix="/profesores", tags=["Profesores"])
+router = APIRouter(prefix="/profesores", tags=["Profesores"]) # Crea un router de FastAPI con el prefijo "/profesores" para agrupar las rutas relacionadas con los profesores y asigna la etiqueta "Profesores" para la documentación automática
 
 @router.get("/", response_model=list[ProfesorOutFull])
 def get_profesores(session: Session = Depends(get_session)):

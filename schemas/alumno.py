@@ -4,7 +4,7 @@ from datetime import date
 from models.enums import EstadosAlumno
 from typing import Optional
 import re
-
+# Este schema se utiliza para la creación de un nuevo alumno, donde se requieren los campos nombre, apellido y edad, mientras que el perfil es opcional.
 class AlumnoOut(BaseModel):
     id: UUID
     legajo: Optional[str]
@@ -23,6 +23,7 @@ class AlumnoOutFull(BaseModel):
     apellido: str
     edad: int
     perfil: Optional[str]
+    foto_url: Optional[str] = None
     legajo: Optional[str]
     fecha_ingreso: Optional[date]
     estado: EstadosAlumno
