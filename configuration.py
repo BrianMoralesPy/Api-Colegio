@@ -1,10 +1,12 @@
 from sqlmodel import create_engine, Session 
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, UploadFile
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from supabase import create_client
+from uuid import uuid4
+from urllib.parse import urlparse
 import os
 import bcrypt
 
@@ -19,7 +21,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine) # Es
 security = HTTPBearer() # Define el esquema de autenticación
 SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET") # Esta clave se utiliza para verificar la firma de los tokens JWT emitidos por Supabase.
 ALGORITHM = "HS256"  # Algoritmo de firma utilizado para los tokens JWT. HS256 es un algoritmo de firma simétrica que utiliza una clave secreta para firmar y verificar los tokens.
-
+ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
 
 def get_session():
@@ -75,3 +77,38 @@ def password_ya_usada(password: str, hashes: list[str]) -> bool:
         if bcrypt.checkpw(password.encode("utf-8"), h.encode("utf-8")):
             return True
     return False
+
+def upload_avatar_to_storage(supabase, file: UploadFile, user_id, bucket_name: str = "fotos_perfil"):
+    if file.content_type not in ALLOWED_TYPES:
+        raise HTTPException(400, "Formato de imagen no permitido")
+
+    extension = file.filename.split(".")[-1].lower()
+
+    filename = f"usuarios/{user_id}/{uuid4().hex}.{extension}"
+
+    contents = file.file.read()
+
+    try:
+        supabase.storage.from_(f"{bucket_name}").upload(filename,contents,{"content-type": file.content_type})
+    except Exception as e:
+        raise HTTPException(400, str(e))
+
+    public_url = supabase.storage.from_(f"{bucket_name}").get_public_url(filename)
+
+    return public_url
+
+def delete_old_avatar(supabase, public_url: str, bucket_name: str = "fotos_perfil"):
+    """
+    Elimina una foto de perfil anterior del almacenamiento de Supabase dado su URL pública.
+    Args:
+        supabase: La instancia del cliente de Supabase.
+        public_url (str): La URL pública de la foto de perfil que se desea eliminar.
+        bucket_name (str): El nombre del bucket en Supabase donde se almacenan las fotos de perfil. Por defecto es "fotos_perfil".
+    """
+    try: 
+        parsed = urlparse(public_url)
+        path = parsed.path.split(f"/{bucket_name}/")[-1]
+        supabase.storage.from_(bucket_name).remove([path])
+    except Exception as e:
+        print("Error al eliminar foto anterior:", str(e))
+
