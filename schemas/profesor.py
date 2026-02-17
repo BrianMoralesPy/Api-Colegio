@@ -23,6 +23,7 @@ class ProfesorOutFull(BaseModel):
     apellido: str
     edad: int
     perfil: Optional[str]
+    foto_url: Optional[str]
     fecha_contratacion: Optional[date]
     titulo: Optional[str]
     especialidad: Optional[str]
