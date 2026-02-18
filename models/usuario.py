@@ -11,5 +11,5 @@ class Usuario(SQLModel, table=True):
     nombre: str
     apellido: str
     edad: int
-    perfil: PerfilUsuario = Field(sa_column=Column(SAEnum(PerfilUsuario,name="perfiles",native_enum=True),nullable=False))
+    perfil: PerfilUsuario = Field(sa_column=Column(SAEnum(PerfilUsuario, name="perfiles", native_enum=True), nullable=False))
     foto_url: str | None = None

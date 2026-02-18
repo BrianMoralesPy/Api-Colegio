@@ -14,5 +14,5 @@ class Profesor(SQLModel, table=True):
     especialidad: str
     fecha_contratacion: Optional[date] = None
     legajo: Optional[str] = None
-    tipo_contrato: TiposContrato = Field(sa_column=Column(SAEnum(TiposContrato,name="tipos_contrato", native_enum=True),nullable=True))
+    tipo_contrato: TiposContrato = Field(sa_column=Column(SAEnum(TiposContrato, name="tipos_contrato", native_enum=True), nullable=True))
     activo: bool = False

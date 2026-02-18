@@ -1,7 +1,8 @@
 from pydantic import BaseModel, EmailStr,field_validator,Field
 from models.enums import PerfilUsuario
 import re
-# Este schema se utiliza para la creación de un nuevo alumno, donde se requieren los campos nombre, apellido y edad, mientras que el perfil es opcional.
+# Este schema se utiliza para la creación de un nuevo alumno, donde se requieren 
+# los campos nombre, apellido y edad, mientras que el perfil es opcional.
 class RegisterBase(BaseModel):
     email: EmailStr
     password: str

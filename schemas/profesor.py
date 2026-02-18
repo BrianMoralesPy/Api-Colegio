@@ -4,7 +4,8 @@ from datetime import date
 from typing import Optional
 from models.enums import TiposContrato
 import re
-# Este schema se utiliza para la creación de un nuevo profesor, donde se requieren los campos nombre, apellido y edad, mientras que el perfil es opcional.
+# Este schema se utiliza para la creación de un nuevo profesor, donde se requieren los 
+# campos nombre, apellido y edad, mientras que el perfil es opcional.
 class ProfesorOut(BaseModel):
     id: UUID
     fecha_contratacion: Optional[date]
