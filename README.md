@@ -1,3 +1,4 @@
+```
 🏫 API REST de Gestion De Alumnos con FAST API, SQLModel Python 3.12 , Supabase PostgreSQL. Permite crear, leer, actualizar y eliminar registros, con validaciones de datos.
 
 📁 Estructura del proyecto
@@ -26,7 +27,7 @@ api-colegio/
 │  ├─ Dockerfile        # Este archivo es el contenedor de todo nuestro proyecto para poder subirlo a un host para que se use sin necesidad de estar en el local
 │  ├─ main.py           # Este archivo contiene todo lo necesario para arrancar la api con sus routers, middlewares
 |  ├─ pasos_para_correr_API.txt # Pasos para correr la api en el local y probar en la maquina propia
-|  ├─ README.md         # Documentación de todo el proyecto, lo  que hace cada endpoint esta en [Documentacion Proyecto](https://api-colegio-baig.onrender.com/docs) o [Documentacion Proyecto local](http://127.0.0.1:8000/docs) si lo corremos local
+|  ├─ README.md         # Documentación de todo el proyecto, lo  que hace cada endpoint esta en "https://api-colegio-baig.onrender.com/docs" o Documentacion Proyecto local "http://127.0.0.1:8000/docs" si lo corremos local
 |  ├─ requirements.txt  # Dependencias para instalar en el proyecto
 |  ├─ runtime.txt       # Se usa para forzar a render a usar la version que le pongas, pero al usar Docker ya no hace falta
 |  ├─ supabase-schema-fckdzckdzlbdqpbieqiw.png es la imagen de como esta organizada la base datos
@@ -43,3 +44,4 @@ api-colegio/
 - Documentación FastAPI
 - Documentación SQLModel
 - Pydantic Validators
+```
