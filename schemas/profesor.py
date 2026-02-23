@@ -6,7 +6,7 @@ from models.enums import TiposContrato
 import re
 # Este schema se utiliza para la creación de un nuevo profesor, donde se requieren los 
 # campos nombre, apellido y edad, mientras que el perfil es opcional.
-class ProfesorOut(BaseModel):
+class ProfesorOut(BaseModel): # Lo que sale al GET
     id: UUID
     fecha_contratacion: Optional[date]
     titulo: Optional[str]
@@ -18,7 +18,7 @@ class ProfesorOut(BaseModel):
     class Config:
         from_attributes = True
 
-class ProfesorOutFull(BaseModel):
+class ProfesorOutFull(BaseModel): # Lo que sale al GET con toda la info del usuario
     id: UUID
     nombre: str
     apellido: str
@@ -32,7 +32,7 @@ class ProfesorOutFull(BaseModel):
     tipo_contrato: Optional[TiposContrato]
     activo: bool
 
-class  ProfesorUpdate(BaseModel):
+class  ProfesorUpdate(BaseModel): # Lo que entra al PUT, todos los campos son opcionales porque el profesor puede querer actualizar solo algunos
     fecha_contratacion: Optional[date] = None
     titulo: Optional[str] = Field(default=None, min_length=2, max_length=50)
     especialidad: Optional[str] = Field(default=None, min_length=2, max_length=50)

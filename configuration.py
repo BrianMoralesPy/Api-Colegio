@@ -7,6 +7,7 @@ from jose import jwt, JWTError
 from supabase import create_client
 from uuid import uuid4
 from urllib.parse import urlparse
+from models.usuario import Usuario
 import os
 import bcrypt
 
@@ -37,22 +38,24 @@ def get_session():
 
 
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)): # Permite verificar el token y obtener los datos del usuarios
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), session: Session = Depends(get_session)):
     token = credentials.credentials
-    try:
-        payload = jwt.decode(
-            token,
-            SUPABASE_JWT_SECRET,
-            algorithms=[ALGORITHM],
-            options={"verify_aud": False}
-        )
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido o expirado"
-        )
 
-    return payload
+    try:
+        payload = jwt.decode(token, SUPABASE_JWT_SECRET, algorithms=[ALGORITHM], options={"verify_aud": False})
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido o expirado")
+
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(401, "Token inválido")
+
+    usuario = session.get(Usuario, user_id)
+    if not usuario:
+        raise HTTPException(404, "Usuario no registrado en el sistema")
+
+    return {"sub": usuario.id, "perfil": usuario.perfil}
+
 
 def hash_password(password: str) -> str:
     """

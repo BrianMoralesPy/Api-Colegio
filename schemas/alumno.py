@@ -6,7 +6,7 @@ from typing import Optional
 import re
 # Este schema se utiliza para la creación de un nuevo alumno, donde se requieren 
 # los campos nombre, apellido y edad, mientras que el perfil es opcional.
-class AlumnoOut(BaseModel):
+class AlumnoOut(BaseModel): # Lo que sale al GET
     id: UUID
     legajo: Optional[str]
     fecha_ingreso: Optional[date]
@@ -18,7 +18,7 @@ class AlumnoOut(BaseModel):
         from_attributes = True
     
 
-class AlumnoOutFull(BaseModel):
+class AlumnoOutFull(BaseModel): # Lo que sale al GET con toda la info del usuario, se utiliza para mostrar el perfil del alumno
     id: UUID
     nombre: str
     apellido: str
@@ -31,7 +31,7 @@ class AlumnoOutFull(BaseModel):
     observaciones: Optional[str]
     activo: bool
 
-class AlumnoUpdate(BaseModel):
+class AlumnoUpdate(BaseModel): # Lo que entra al PUT, todos los campos son opcionales porque el alumno puede querer actualizar solo algunos, se utiliza para que el alumno pueda actualizar su perfil desde la app
     legajo: Optional[str] = Field(default=None,min_length=2,max_length=10,description="Legajo del alumno")
     fecha_ingreso: Optional[date] = None
     estado: Optional[EstadosAlumno] = None

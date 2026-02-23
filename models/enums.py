@@ -15,3 +15,17 @@ class TiposContrato(str, Enum):
     planta = "planta"
     suplente = "suplente"
     interino = "interino"
+class TipoPublicacion(str, Enum):
+    aviso = "aviso"
+    tarea = "tarea"
+    material = "material"
+
+class RolEnCurso(str, Enum):
+    titular = "titular"
+    suplente = "suplente"
+    ayudante = "ayudante"
+
+class Turnos(str, Enum):
+    mañana = "mañana"
+    tarde = "tarde"
+    noche = "noche"

@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware  # Importa la clase FastAPI para crear la aplicación y 
                                                     # CORSMiddleware para manejar las políticas de CORS 
                                                     # (Cross-Origin Resource Sharing)
-from routers import auth,alumnos,profesores # Importa los routers de autenticación, alumnos y profesores desde 
+from routers import auth,alumnos,profesores,publicaciones # Importa los routers de autenticación, alumnos y profesores desde 
                                             # la carpeta routers
 
 app = FastAPI(title="API Colegio") # Título de la API para documentación automática con Swagger UI
@@ -21,3 +21,4 @@ app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True
 app.include_router(auth.router) #  Incluye las rutas definidas en el router de autenticación (auth.py)
 app.include_router(alumnos.router) # Incluye las rutas definidas en el router de alumnos (alumno.py)
 app.include_router(profesores.router) # Incluye las rutas definidas en el router de profesores (profesor.py)
+app.include_router(publicaciones.router) # Incluye las rutas definidas en el router de publicaciones (publicaciones.py)

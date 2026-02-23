@@ -3,7 +3,7 @@ from models.enums import PerfilUsuario
 import re
 # Este schema se utiliza para la creación de un nuevo alumno, donde se requieren 
 # los campos nombre, apellido y edad, mientras que el perfil es opcional.
-class RegisterBase(BaseModel):
+class RegisterBase(BaseModel): # Lo que entra al POST, se utiliza para registrar un nuevo usuario, ya sea alumno, profesor o admin
     email: EmailStr
     password: str
     nombre: str
@@ -45,7 +45,7 @@ class RegisterProfesor(RegisterBase):
 class RegisterAdmin(RegisterBase):
     perfil: PerfilUsuario = PerfilUsuario.admin
 
-class LoginSchema(BaseModel):
+class LoginSchema(BaseModel): # Lo que entra al POST, se utiliza para iniciar sesión
     email: EmailStr
     password: str
 
@@ -56,6 +56,6 @@ class LoginSchema(BaseModel):
             raise ValueError("La contraseña es obligatoria")
         return value
 
-class ResetPasswordSchema(BaseModel):
+class ResetPasswordSchema(BaseModel): # Lo que entra al POST, se utiliza para restablecer la contraseña directamente
     user_id: str = Field(..., description="UUID del usuario")
     new_password: str = Field(...,min_length=8)

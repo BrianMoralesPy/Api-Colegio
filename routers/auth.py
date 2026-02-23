@@ -32,14 +32,14 @@ def register_alumno(data: RegisterAlumno, session: Session = Depends(get_session
         raise HTTPException(status_code=400, detail="El email ya está registrado")
 
     user_id = uuid.UUID(auth_user.user.id)
-    usuario = Usuario(id=user_id,nombre=data.nombre,apellido=data.apellido,edad=data.edad,perfil=PerfilUsuario.alumno)
+    usuario = Usuario(id=user_id, nombre=data.nombre, apellido=data.apellido, edad=data.edad, perfil=PerfilUsuario.alumno)
     session.add(usuario)
     session.flush()
     
-    alumno = Alumno(id=user_id,legajo=None,fecha_ingreso=None,estado=EstadosAlumno.pendiente,observaciones=None,activo=False)
+    alumno = Alumno(id=user_id, legajo=None, fecha_ingreso=None, estado=EstadosAlumno.pendiente, observaciones=None, activo=False)
     session.add(alumno)
 
-    historial = HistorialContrasenas(user_id=user_id,contrasena_hasheada=hash_password(data.password))
+    historial = HistorialContrasenas(user_id=user_id, contrasena_hasheada=hash_password(data.password))
     session.add(historial)  
     
     session.commit()
@@ -60,7 +60,7 @@ def register_profesor(data: RegisterProfesor, session: Session = Depends(get_ses
     
     profesor =  Profesor(id=user_id,titulo=None,especialidad=None,fecha_contratacion=None,legajo=None,tipo_contrato=None,activo=False)
     session.add(profesor)
-    historial = HistorialContrasenas(user_id=user_id,contrasena_hasheada=hash_password(data.password))
+    historial = HistorialContrasenas(user_id=user_id, contrasena_hasheada=hash_password(data.password))
     
     session.add(historial)
     session.commit()
@@ -84,7 +84,7 @@ def me(user=Depends(get_current_user), session: Session = Depends(get_session)) 
     usuario = session.get(Usuario, user["sub"]) # OBTIENE EL USUARIO DE LA BASE DE DATOS UTILIZANDO EL ID OBTENIDO DEL TOKEN DE ACCESO
     if not usuario:
         raise HTTPException(404, "Usuario no registrado")
-    data = {"usuario": UsuarioOut.model_validate(usuario)}
+    data = {"usuario": UsuarioOut.model_validate(usuario)} 
 
     if usuario.perfil == PerfilUsuario.alumno:
         alumno = session.get(Alumno, usuario.id)
@@ -118,9 +118,13 @@ def upload_avatar(file: UploadFile = File(...), user=Depends(get_current_user), 
 
 
 @router.post("/reset-password") # ENDPOINT PARA RESETEAR CONTRASEÑA
-def reset_password(data:ResetPasswordSchema):
+def reset_password(data:ResetPasswordSchema, session: Session = Depends(get_session)):
     try:
         supabase.auth.admin.update_user_by_id(data.user_id, {"password": data.new_password})
+        historial = HistorialContrasenas(user_id=data.user_id, contrasena_hasheada=hash_password(data.new_password))
+        session.add(historial)
+        session.commit()
+
     except Exception:
         raise HTTPException(status_code=400, detail="Error al actualizar la contraseña")
 
