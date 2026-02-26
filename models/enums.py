@@ -29,3 +29,8 @@ class Turnos(str, Enum):
     mañana = "mañana"
     tarde = "tarde"
     noche = "noche"
+
+class EstadosAlumnosEnCurso(str, Enum):
+    cursando = "cursando"
+    aprobado = "aprobado"
+    reprobado = "reprobado"

@@ -10,7 +10,6 @@ class Curso(SQLModel, table=True):
     __tablename__ = "cursos"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-
     nombre: str = Field(max_length=100, nullable=False)
     turno: Turnos = Field(sa_column=Column(SAEnum(Turnos, name="turnos", native_enum=True), nullable=False)) 
     activo: bool = Field(default=False)

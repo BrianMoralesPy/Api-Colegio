@@ -7,7 +7,6 @@ class Materia(SQLModel, table=True):
     __tablename__ = "materias"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-
     codigo: str = Field(max_length=100, nullable=False)
     activa: bool = Field(default=False)
     descripcion: Optional[str] = Field(max_length=255, nullable=True)

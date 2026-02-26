@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File # Importa las clases y funciones necesarias de FastAPI para crear rutas, manejar dependencias y lanzar excepciones HTTP
 from sqlmodel import Session # Importa la clase Session de SQLModel para manejar las sesiones de base de datos
-from configuration import supabase, get_session, get_current_user, hash_password, upload_avatar_to_storage,delete_old_avatar
+from services.configuration import supabase, get_session, get_current_user, hash_password, upload_avatar_to_storage,delete_old_avatar
 from models.usuario import Usuario
 from models.alumno import Alumno
 from models.profesor import Profesor

@@ -13,7 +13,7 @@ import bcrypt
 
 """ Variables para conexion a Supabase y su base de datos Postgres de SUPABASE """
 load_dotenv()  # Carga las variables de .env
-supabase = create_client(os.getenv("SUPABASE_URL"),os.getenv("SUPABASE_SERVICE_ROLE_KEY")) # Cliente de Supabase
+supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_ROLE_KEY")) # Cliente de Supabase
 DATABASE_URL = os.getenv("DATABASE_URL") # Ejemplo: "postgresql://usuario:contraseña@localhost:5432/mi_base_de_datos"
 engine = create_engine(DATABASE_URL, echo=True) # Crear motor de base de datos osea la conexión principal a la BD
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine) # Esto es una fábrica de sesiones. Cada vez que se llama a SessionLocal() se obtiene una nueva sesión conectada a la BD.
@@ -23,7 +23,6 @@ security = HTTPBearer() # Define el esquema de autenticación
 SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET") # Esta clave se utiliza para verificar la firma de los tokens JWT emitidos por Supabase.
 ALGORITHM = "HS256"  # Algoritmo de firma utilizado para los tokens JWT. HS256 es un algoritmo de firma simétrica que utiliza una clave secreta para firmar y verificar los tokens.
 ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"]
-
 
 def get_session():
     """
@@ -115,3 +114,15 @@ def delete_old_avatar(supabase, public_url: str, bucket_name: str = "fotos_perfi
     except Exception as e:
         print("Error al eliminar foto anterior:", str(e))
 
+def upload_file_to_storage(path: str, file):
+    """
+    Sube un archivo al almacenamiento de Supabase en la ruta especificada.
+    Args:
+        path (str): La ruta dentro del bucket de Supabase donde se desea almacenar el archivo, por ejemplo "publicaciones/{publicacion_id}/archivo.pdf".
+        file: El archivo que se desea subir, generalmente un objeto UploadFile de FastAPI.
+    """
+    content = file.file.read()
+
+    response = supabase.storage.from_("archivos").upload(path, content, {"content-type": file.content_type})
+    if hasattr(response, "error") and response.error:
+        raise Exception("Error al subir archivo a storage")
