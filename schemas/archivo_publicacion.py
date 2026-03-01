@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
-class ArchivoOut(BaseModel):
+class ArchivoPublicacionOut(BaseModel):
     id: UUID
     fecha_subida: datetime
     publicacion_id: UUID

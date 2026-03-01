@@ -41,10 +41,6 @@ class RegisterAlumno(RegisterBase):
 
 class RegisterProfesor(RegisterBase):
     perfil: PerfilUsuario = PerfilUsuario.profesor
-
-class RegisterAdmin(RegisterBase):
-    perfil: PerfilUsuario = PerfilUsuario.admin
-
 class LoginSchema(BaseModel): # Lo que entra al POST, se utiliza para iniciar sesión
     email: EmailStr
     password: str

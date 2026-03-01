@@ -2,8 +2,8 @@ from sqlmodel import SQLModel, Field
 from uuid import UUID, uuid4
 from datetime import datetime
 
-class Archivo(SQLModel, table=True):
-    __tablename__ = "archivos"
+class ArchivosPublicacion(SQLModel, table=True):
+    __tablename__ = "archivos_publicacion"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     fecha_subida: datetime = Field(default_factory=datetime.utcnow)

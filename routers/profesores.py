@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException # Importa las clases y funciones necesarias de FastAPI para crear rutas, manejar dependencias y lanzar excepciones HTTP
 from sqlmodel import Session #  Importa la clase Session de SQLModel para manejar las sesiones de base de datos
-from services.configuration import get_session,supabase  # Importa la función get_session para obtener una sesión de base de datos y 
+from services.configuration import get_session,supabase_admin  # Importa la función get_session para obtener una sesión de base de datos y 
                                                 # la instancia de Supabase desde el archivo de configuración 
 from uuid import UUID
 from models.profesor import Profesor
@@ -25,7 +25,7 @@ def get_profesores(session: Session = Depends(get_session)) -> list[ProfesorOutF
 
         respuesta.append(
             ProfesorOutFull(id=profesor.id, nombre=usuario.nombre, apellido=usuario.apellido, edad=usuario.edad,
-                            perfil=usuario.perfil, foto_url = usuario.foto_url, fecha_contratacion=profesor.fecha_contratacion,
+                            perfil=usuario.perfil, ruta_foto = usuario.ruta_foto, fecha_contratacion=profesor.fecha_contratacion,
                             titulo=profesor.titulo, especialidad=profesor.especialidad, legajo=profesor.legajo,
                             tipo_contrato=profesor.tipo_contrato, activo=profesor.activo))
     return respuesta
@@ -41,7 +41,7 @@ def get_profesor(profesor_id: UUID, session: Session = Depends(get_session)) -> 
         raise HTTPException(500, "Usuario inconsistente")
 
     return ProfesorOutFull(id=profesor.id, nombre=usuario.nombre, apellido=usuario.apellido, edad=usuario.edad,
-                            perfil=usuario.perfil, foto_url=usuario.foto_url, fecha_contratacion=profesor.fecha_contratacion,
+                            perfil=usuario.perfil, ruta_foto=usuario.ruta_foto, fecha_contratacion=profesor.fecha_contratacion,
                             titulo=profesor.titulo, especialidad=profesor.especialidad, legajo=profesor.legajo,
                             tipo_contrato=profesor.tipo_contrato, activo=profesor.activo)
 
@@ -84,7 +84,7 @@ def delete_profesor(profesor_id: UUID,session: Session = Depends(get_session)) -
         session.delete(profesor)
         session.delete(usuario)
         session.commit()
-        supabase.auth.admin.delete_user(str(usuario.id))
+        supabase_admin.auth.admin.delete_user(str(usuario.id))
 
     except Exception as e:
         session.rollback()

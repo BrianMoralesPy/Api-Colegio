@@ -34,3 +34,8 @@ class EstadosAlumnosEnCurso(str, Enum):
     cursando = "cursando"
     aprobado = "aprobado"
     reprobado = "reprobado"
+
+class EstadosEntregas(str, Enum):
+    entregado = "entregado"
+    corregido = "corregido"
+    vencido= "vencido"

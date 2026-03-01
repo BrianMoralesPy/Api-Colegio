@@ -14,5 +14,5 @@ class Usuario(SQLModel, table=True):
     apellido: str
     edad: int
     perfil: PerfilUsuario = Field(sa_column=Column(SAEnum(PerfilUsuario, name="perfiles", native_enum=True), nullable=False))
-    foto_url: str | None = None
+    ruta_foto: str | None = None
     fecha_registro: datetime = Field(default_factory=datetime.utcnow)

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException # Importa las clases y funciones necesarias de FastAPI para crear rutas, manejar dependencias y lanzar excepciones HTTP
 from sqlmodel import Session # Importa la clase Session de SQLModel para manejar las sesiones de base de datos
 from uuid import UUID 
-from services.configuration import supabase, get_session 
+from services.configuration import supabase_admin, get_session 
 from models.alumno import Alumno
 from models.usuario import Usuario
 from models.historial_contrasenas import HistorialContrasenas
@@ -31,7 +31,7 @@ def get_alumnos(session: Session = Depends(get_session)) -> list[AlumnoOutFull]:
         if not usuario:
             continue
         respuesta.append(AlumnoOutFull(id=alumno.id, nombre=usuario.nombre, apellido=usuario.apellido, edad=usuario.edad, perfil=usuario.perfil,
-                                        foto_url=usuario.foto_url, legajo=alumno.legajo, fecha_ingreso=alumno.fecha_ingreso, estado=alumno.estado,
+                                        ruta_foto=usuario.ruta_foto, legajo=alumno.legajo, fecha_ingreso=alumno.fecha_ingreso, estado=alumno.estado,
                                         observaciones=alumno.observaciones, activo=alumno.activo))
     return respuesta
 
@@ -48,7 +48,7 @@ def get_alumno(alumno_id: UUID,session: Session = Depends(get_session)) -> Alumn
         raise HTTPException(500, "Usuario inconsistente")
 
     return AlumnoOutFull(id=alumno.id, nombre=usuario.nombre, apellido=usuario.apellido, edad=usuario.edad, perfil=usuario.perfil,
-                            foto_url=usuario.foto_url, legajo=alumno.legajo, fecha_ingreso=alumno.fecha_ingreso, estado=alumno.estado,
+                            ruta_foto=usuario.ruta_foto, legajo=alumno.legajo, fecha_ingreso=alumno.fecha_ingreso, estado=alumno.estado,
                             observaciones=alumno.observaciones, activo=alumno.activo)
 
 @router.put("/{alumno_id}")
@@ -88,7 +88,7 @@ def delete_alumno(alumno_id: UUID,session: Session = Depends(get_session)) -> di
         session.delete(alumno)
         session.delete(usuario)
         session.commit()
-        supabase.auth.admin.delete_user(str(usuario.id))
+        supabase_admin.auth.admin.delete_user(str(usuario.id))
 
     except Exception as e:
         session.rollback()

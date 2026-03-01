@@ -13,7 +13,7 @@ class UsuarioOut(BaseModel):
     apellido: str
     edad: int
     perfil: PerfilUsuario
-    foto_url: Optional[str] = None
+    ruta_foto: Optional[str] = None
 
     class Config:
         from_attributes = True

@@ -13,8 +13,13 @@ import bcrypt
 
 """ Variables para conexion a Supabase y su base de datos Postgres de SUPABASE """
 load_dotenv()  # Carga las variables de .env
-supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_ROLE_KEY")) # Cliente de Supabase
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+ANON_KEY = os.getenv("ANON_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL") # Ejemplo: "postgresql://usuario:contraseña@localhost:5432/mi_base_de_datos"
+
+supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) # Cliente de Supabase admin
+supabase_auth = create_client(SUPABASE_URL,ANON_KEY) # Cliente de Supabase para autenticación de usuarios (registro, login, etc)
 engine = create_engine(DATABASE_URL, echo=True) # Crear motor de base de datos osea la conexión principal a la BD
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine) # Esto es una fábrica de sesiones. Cada vez que se llama a SessionLocal() se obtiene una nueva sesión conectada a la BD.
 
@@ -23,6 +28,7 @@ security = HTTPBearer() # Define el esquema de autenticación
 SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET") # Esta clave se utiliza para verificar la firma de los tokens JWT emitidos por Supabase.
 ALGORITHM = "HS256"  # Algoritmo de firma utilizado para los tokens JWT. HS256 es un algoritmo de firma simétrica que utiliza una clave secreta para firmar y verificar los tokens.
 ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"]
+BUCKET_NAME = "archivos" # Nombre del bucket en Supabase donde se almacenan los archivos de las publicaciones
 
 def get_session():
     """
@@ -80,26 +86,25 @@ def password_ya_usada(password: str, hashes: list[str]) -> bool:
             return True
     return False
 
-def upload_avatar_to_storage(supabase, file: UploadFile, user_id, bucket_name: str = "fotos_perfil"):
+def upload_avatar_to_storage(supabase_admin, file: UploadFile, user_id, bucket_name: str = "fotos_perfil"):
+
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(400, "Formato de imagen no permitido")
 
     extension = file.filename.split(".")[-1].lower()
-
     filename = f"usuarios/{user_id}/{uuid4().hex}.{extension}"
 
     contents = file.file.read()
 
     try:
-        supabase.storage.from_(f"{bucket_name}").upload(filename,contents,{"content-type": file.content_type})
+        supabase_admin.storage.from_(bucket_name).upload(filename,contents,{"content-type": file.content_type})
     except Exception as e:
         raise HTTPException(400, str(e))
 
-    public_url = supabase.storage.from_(f"{bucket_name}").get_public_url(filename)
+    # ⚠️ Devolver solo el path interno
+    return filename
 
-    return public_url
-
-def delete_old_avatar(supabase, public_url: str, bucket_name: str = "fotos_perfil"):
+def delete_old_avatar(supabase_admin, avatar_path: str, bucket_name: str = "fotos_perfil"):
     """
     Elimina una foto de perfil anterior del almacenamiento de Supabase dado su URL pública.
     Args:
@@ -107,10 +112,8 @@ def delete_old_avatar(supabase, public_url: str, bucket_name: str = "fotos_perfi
         public_url (str): La URL pública de la foto de perfil que se desea eliminar.
         bucket_name (str): El nombre del bucket en Supabase donde se almacenan las fotos de perfil. Por defecto es "fotos_perfil".
     """
-    try: 
-        parsed = urlparse(public_url)
-        path = parsed.path.split(f"/{bucket_name}/")[-1]
-        supabase.storage.from_(bucket_name).remove([path])
+    try:
+        supabase_admin.storage.from_(bucket_name).remove([avatar_path])
     except Exception as e:
         print("Error al eliminar foto anterior:", str(e))
 
@@ -123,6 +126,18 @@ def upload_file_to_storage(path: str, file):
     """
     content = file.file.read()
 
-    response = supabase.storage.from_("archivos").upload(path, content, {"content-type": file.content_type})
+    response = supabase_admin.storage.from_(BUCKET_NAME).upload(path, content, {"content-type": file.content_type,
+                                            "x-upsert": "false"})
     if hasattr(response, "error") and response.error:
-        raise Exception("Error al subir archivo a storage")
+        raise Exception(f"Error al subir archivo: {response.error}")
+
+def generate_signed_url(path: str, expires_in: int = 3600):
+    """
+    Genera una URL temporal firmada para acceder a un archivo privado.
+    expires_in: segundos de validez
+    """
+    response = supabase_admin.storage.from_("archivos").create_signed_url(path, expires_in)
+    if hasattr(response, "error") and response.error:
+        raise Exception("Error al generar signed URL")
+
+    return response.get("signedURL")
