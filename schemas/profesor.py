@@ -81,7 +81,7 @@ class  ProfesorUpdate(BaseModel): # Lo que entra al PUT, todos los campos son op
         return value
     
 #Seccion de profesor en curso
-class CursoBasic(BaseModel):
+class CursoBasic(BaseModel): # DATOS BASICOS DE CURSO
     id: UUID
     nombre: str
     turno: Turnos
@@ -89,7 +89,7 @@ class CursoBasic(BaseModel):
 
     class Config:
         from_attributes = True
-class MateriaBasic(BaseModel):
+class MateriaBasic(BaseModel): # DATOS BASICOS DE MATERIA
     id: UUID
     nombre: str
     codigo: str
@@ -98,7 +98,7 @@ class MateriaBasic(BaseModel):
     class Config:
         from_attributes = True
 
-class MateriaCursoBasic(BaseModel):
+class MateriaCursoBasic(BaseModel): # MATERIA CURSO TIENE LOS DATOS Y CURSO Y MATERIA
     id: UUID
     ciclo_lectivo: int
     carga_horaria: int
@@ -108,7 +108,7 @@ class MateriaCursoBasic(BaseModel):
 
     class Config:
         from_attributes = True
-class UsuarioBasic(BaseModel):
+class UsuarioBasic(BaseModel): # USUARIO PARA OBTENER NOMBRE Y APELLIDO
     id: UUID
     nombre: str
     apellido: str
@@ -116,7 +116,7 @@ class UsuarioBasic(BaseModel):
     class Config:
         from_attributes = True
 
-class ProfesorBasic(BaseModel): # Lo que sale al GET
+class ProfesorBasic(BaseModel): # SCHMEA BASIC DE PROFESOR Y AGREGO USUARIO
     id: UUID
     fecha_contratacion: Optional[date]
     titulo: Optional[str]
@@ -131,8 +131,9 @@ class ProfesorBasic(BaseModel): # Lo que sale al GET
 
     class Config:
         from_attributes = True
-class ProfesorCursoMateriaOutFull(BaseModel):
+class ProfesorCursoMateriaOutFull(BaseModel): # EL SCHEMA QUE UTILIZAMOS PARA MOSTRAR , CURSO, MATERIA, PROFESOR 
     id: UUID
+    materia_curso_id : UUID
     rol_en_curso: RolEnCurso
     fecha_asignacion: datetime
 
@@ -142,14 +143,14 @@ class ProfesorCursoMateriaOutFull(BaseModel):
     class Config:
         from_attributes = True
 
-class ProfesorEnCursoMateriaCreate(BaseModel):
+class ProfesorEnCursoMateriaCreate(BaseModel): # SCHEMA QUE USAMOS PARA CREAR EN LA TABLA CURSOPROFESOR
     profesor_id: UUID
     materia_curso_id: UUID
     rol_en_curso: RolEnCurso = RolEnCurso.titular
     class Config:
         from_attributes = True
 
-class ProfesorEnCursoMateriaBasic(BaseModel):
+class ProfesorEnCursoMateriaBasic(BaseModel): # SCHEMA BASIC PARA VER LA SALIDA DE LO CREAMOS
     id: UUID
     profesor_id: UUID
     materia_curso_id: UUID

@@ -55,7 +55,7 @@ def get_profesores(session: Session = Depends(get_session), user=Depends(require
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al obtener profesores: {str(e)}")
-
+#Seccion Curso Profesor
 @router.get("/curso-materia", response_model=list[ProfesorCursoMateriaOutFull])
 def get_profesor_en_curso_materia(materia_curso_id: UUID | None = None, session: Session = Depends(get_session),
                         user=Depends(require_role(PerfilUsuario.admin)) ) -> list[ProfesorCursoMateriaOutFull]:
@@ -64,16 +64,13 @@ def get_profesor_en_curso_materia(materia_curso_id: UUID | None = None, session:
 
     Este endpoint devuelve las relaciones entre **profesores y cursos y materia**
     registradas en el sistema. Permite filtrar opcionalmente por
-    **curso** y/o **ciclo lectivo**.
+    **curso_materia**.
 
     Parámetros:
     - **materia_curso_id (UUID, opcional)**  
       Identificador del curso. Si se proporciona, se devolverán únicamente
       los profesores asignados a ese curso.
 
-    - **ciclo_lectivo (int, opcional)**  
-      Año del ciclo lectivo. Si se especifica, se devolverán solo los profesores
-      asignados en ese ciclo lectivo.
 
     Comportamiento:
     - Si no se envían filtros, se devuelven **todas las asignaciones
@@ -136,7 +133,7 @@ def asignar_curso_y_materia_a_profesor(data: ProfesorEnCursoMateriaCreate, sessi
     Validaciones:
     - Antes de crear la asignación, se verifica si ya existe un registro
       con la misma combinación de **profesor, curso y materia**.
-    - Si el profesor ya está asignado a ese curso en esa ciclo materia,
+    - Si el profesor ya está asignado a ese curso en esa materia,
       se devuelve un error para evitar duplicados.
 
     Permisos:
@@ -144,7 +141,7 @@ def asignar_curso_y_materia_a_profesor(data: ProfesorEnCursoMateriaCreate, sessi
     - Solo usuarios con rol **admin** pueden realizar esta operación.
 
     Proceso:
-    1. Se verifica si el profesor ya está asignado al curso en el mismo ciclo lectivo.
+    1. Se verifica si el profesor ya está asignado al curso y materia.
     2. Si no existe la asignación, se crea un nuevo registro `CursoProfesor`.
     3. Se guarda el registro en la base de datos (`commit`).
     4. Se refresca el objeto para obtener los valores generados automáticamente.
@@ -161,7 +158,7 @@ def asignar_curso_y_materia_a_profesor(data: ProfesorEnCursoMateriaCreate, sessi
     """
 
     try:
-        # Validar que el profesor no esté ya en ese curso ese año
+        # Validar que el profesor no esté ya en ese curso y materia
         statement = select(CursoProfesor).where(CursoProfesor.profesor_id == data.profesor_id,
                                                 CursoProfesor.materia_curso_id == data.materia_curso_id)
 
@@ -235,7 +232,7 @@ def delete_profesor_de_curso_materia(curso_profesor_id: UUID, session: Session =
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al eliminar profesor_curso: {str(e)}")
-    
+# FIN Seccion Curso Profesor
 @router.get("/{profesor_id}", response_model=ProfesorOutFull)
 def get_profesor(profesor_id: UUID, session: Session = Depends(get_session), user=Depends(require_role(PerfilUsuario.admin))) -> ProfesorOutFull:
     """
