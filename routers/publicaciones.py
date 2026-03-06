@@ -1,10 +1,10 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlmodel import Session, select
 from uuid import UUID
 from datetime import datetime, timezone
 from uuid import uuid4
 from services.configuration import upload_file_to_storage
-import os
 
 from services.configuration import get_session, get_current_user, generate_signed_url
 from models.publicacion import Publicacion
@@ -22,9 +22,46 @@ from schemas.entregas import CorreccionCreate
 
 router = APIRouter(prefix="/publicaciones", tags=["Publicaciones"])
 
+
 @router.get("/{publicacion_id}" , response_model=PublicacionOut)
-def leer_datos_publicacion(publicacion_id: UUID, user=Depends(get_current_user), 
-                        session: Session = Depends(get_session)):
+def leer_datos_publicacion(publicacion_id: UUID, user=Depends(get_current_user), session: Session = Depends(get_session)):
+    """
+    Endpoint para obtener la información de una publicación específica.
+
+    El acceso se controla según el perfil del usuario:
+
+    - ADMIN:
+        Puede ver cualquier publicación, incluso si está inactiva.
+
+    - PROFESOR:
+        Puede ver todas las publicaciones que haya creado.
+        También puede ver publicaciones activas de otras materias.
+        No puede ver publicaciones inactivas creadas por otros profesores.
+
+    - ALUMNO:
+        Puede ver publicaciones activas de las materias en las que esté inscripto.
+        No puede ver publicaciones inactivas.
+
+    Args:
+        publicacion_id (UUID):
+            ID de la publicación que se desea consultar.
+
+        user:
+            Usuario autenticado obtenido desde el token JWT mediante la dependencia get_current_user.
+
+        session (Session):
+            Sesión de base de datos proporcionada por la dependencia get_session.
+
+    Returns:
+        PublicacionOut:
+            Objeto con la información completa de la publicación.
+
+    Raises:
+        HTTPException:
+            404 si el usuario o la publicación no existen.
+            403 si el usuario no tiene permisos para acceder a la publicación.
+            500 si ocurre un error interno.
+    """
     try: 
         usuario = session.get(Usuario, user["sub"])
         if not usuario:
@@ -73,7 +110,46 @@ def leer_datos_publicacion(publicacion_id: UUID, user=Depends(get_current_user),
 
 @router.get("/archivos_publicacion/{publicacion_id}", response_model=list[ArchivoPublicacionOut])
 def leer_archivos_tarea_o_material_publicacion(publicacion_id: UUID, user=Depends(get_current_user),
-                                session: Session = Depends(get_session)):
+                                                            session: Session = Depends(get_session)):
+    """
+    Endpoint para obtener los archivos adjuntos de una publicación.
+
+    Permite recuperar todos los archivos asociados a una publicación
+    de tipo tarea o material.
+
+    Control de acceso:
+
+    - ADMIN:
+        Puede ver los archivos de cualquier publicación.
+
+    - PROFESOR:
+        Puede ver archivos de publicaciones pertenecientes a materias
+        en las que esté asignado como profesor.
+
+    - ALUMNO:
+        Puede ver archivos de publicaciones activas de materias
+        en las que esté inscripto.
+
+    Args:
+        publicacion_id (UUID):
+            ID de la publicación de la cual se desean obtener los archivos.
+
+        user:
+            Usuario autenticado obtenido desde el token JWT.
+
+        session (Session):
+            Sesión de base de datos.
+
+    Returns:
+        list[ArchivoPublicacionOut]:
+            Lista de archivos asociados a la publicación.
+
+    Raises:
+        HTTPException:
+            404 si el usuario o la publicación no existen.
+            403 si el usuario no tiene acceso a la materia.
+            500 si ocurre un error interno.
+    """
     try:
         # 1️⃣ Validar usuario
         usuario = session.get(Usuario, user["sub"])
@@ -118,6 +194,49 @@ def leer_archivos_tarea_o_material_publicacion(publicacion_id: UUID, user=Depend
 @router.post("/{materia_curso_id}", response_model=PublicacionOut)
 def crear_publicacion( materia_curso_id: UUID, data: PublicacionCreate, user=Depends(get_current_user), 
                         session: Session = Depends(get_session)):
+    """
+    Endpoint para crear una nueva publicación dentro de una materia de un curso.
+
+    Tipos de publicación posibles:
+    - aviso
+    - tarea
+    - material
+
+    Control de acceso:
+
+    - ADMIN:
+        No puede crear publicaciones.
+
+    - PROFESOR:
+        Puede crear publicaciones únicamente en materias donde esté asignado.
+
+    - ALUMNO:
+        No puede crear publicaciones.
+
+    Args:
+        materia_curso_id (UUID):
+            ID de la relación materia-curso donde se creará la publicación.
+
+        data (PublicacionCreate):
+            Datos necesarios para crear la publicación
+            (título, descripción, tipo, fecha de entrega, etc.).
+
+        user:
+            Usuario autenticado obtenido desde el token JWT.
+
+        session (Session):
+            Sesión de base de datos.
+
+    Returns:
+        PublicacionOut:
+            Objeto con la información de la publicación creada.
+
+    Raises:
+        HTTPException:
+            404 si la materia del curso no existe.
+            403 si el usuario no tiene permiso para publicar.
+            500 si ocurre un error interno durante la creación.
+    """
     try:
         # 1️⃣ Validar usuario
         usuario = session.get(Usuario, user["sub"])
@@ -163,6 +282,52 @@ def crear_publicacion( materia_curso_id: UUID, data: PublicacionCreate, user=Dep
 @router.post("/archivos/{publicacion_id}")   # se puede utilizar cuando creamos la publicacion o la actualizamos mas que nada si el profesor
 def subir_material_o_tarea(publicacion_id: UUID, file: UploadFile = File(...),
                                 user=Depends(get_current_user), session: Session = Depends(get_session),):
+    """
+    Endpoint para subir archivos adjuntos a una publicación.
+
+    Solo permite subir archivos a publicaciones de tipo:
+    - tarea
+    - material
+
+    Los archivos se almacenan en Supabase Storage y se registra
+    su metadata en la base de datos.
+
+    Control de acceso:
+
+    - ADMIN:
+        No puede subir archivos.
+
+    - PROFESOR:
+        Puede subir archivos únicamente en publicaciones que haya creado
+        o en materias donde esté asignado.
+
+    - ALUMNO:
+        No puede subir archivos.
+
+    Args:
+        publicacion_id (UUID):
+            ID de la publicación a la cual se adjuntará el archivo.
+
+        file (UploadFile):
+            Archivo enviado mediante formulario multipart/form-data.
+
+        user:
+            Usuario autenticado obtenido desde el token JWT.
+
+        session (Session):
+            Sesión de base de datos.
+
+    Returns:
+        ArchivoPublicacionOut:
+            Información del archivo subido.
+
+    Raises:
+        HTTPException:
+            404 si la publicación no existe.
+            400 si la publicación es de tipo aviso.
+            403 si el usuario no tiene permiso.
+            500 si ocurre un error al subir el archivo.
+    """
     try:
         # 1️⃣ Validar usuario
         usuario = session.get(Usuario, user["sub"])
@@ -223,6 +388,50 @@ def subir_material_o_tarea(publicacion_id: UUID, file: UploadFile = File(...),
 @router.post("/entregar_tarea/{publicacion_id}") # subimos tarea al storage y tambien los datos a su tabla
 def entregar_tarea(publicacion_id: UUID, file: UploadFile = File(...),
                     user=Depends(get_current_user),session: Session = Depends(get_session)):
+    """
+    Endpoint para que un alumno entregue una tarea.
+
+    Permite subir un archivo asociado a una publicación de tipo tarea.
+    El archivo se almacena en Supabase Storage y se registra en la base de datos.
+
+    Control de acceso:
+
+    - ADMIN:
+        No puede entregar tareas.
+
+    - PROFESOR:
+        No puede entregar tareas.
+
+    - ALUMNO:
+        Puede entregar tareas únicamente si:
+        - La publicación es de tipo tarea.
+        - La tarea no está vencida.
+        - El alumno pertenece al curso de la materia.
+
+    Args:
+        publicacion_id (UUID):
+            ID de la publicación de tipo tarea.
+
+        file (UploadFile):
+            Archivo enviado por el alumno como entrega.
+
+        user:
+            Usuario autenticado obtenido desde el token JWT.
+
+        session (Session):
+            Sesión de base de datos.
+
+    Returns:
+        dict:
+            Mensaje confirmando que la entrega fue realizada correctamente.
+
+    Raises:
+        HTTPException:
+            404 si la publicación no existe.
+            400 si la tarea está vencida o no es del tipo correcto.
+            403 si el alumno no pertenece al curso.
+            500 si ocurre un error interno.
+    """
     try:
         # 🔹 Obtener usuario real
         usuario = session.get(Usuario, user["sub"])
@@ -292,6 +501,49 @@ def entregar_tarea(publicacion_id: UUID, file: UploadFile = File(...),
 @router.put("/correcion-entregas/{entrega_id}")
 def corregir_entrega(entrega_id: UUID, datos: CorreccionCreate, user=Depends(get_current_user),
                                                         session: Session = Depends(get_session)):
+    """
+    Endpoint para que un profesor corrija una entrega de tarea.
+
+    Permite asignar:
+    - nota
+    - comentario del profesor
+
+    Control de acceso:
+
+    - ADMIN:
+        No puede corregir entregas.
+
+    - PROFESOR:
+        Puede corregir entregas únicamente de materias
+        en las que esté asignado.
+
+    - ALUMNO:
+        No puede corregir entregas.
+
+    Args:
+        entrega_id (UUID):
+            ID de la entrega que se desea corregir.
+
+        datos (CorreccionCreate):
+            Información de la corrección (nota y comentario).
+
+        user:
+            Usuario autenticado obtenido desde el token JWT.
+
+        session (Session):
+            Sesión de base de datos.
+
+    Returns:
+        Entrega:
+            Objeto actualizado con la corrección aplicada.
+
+    Raises:
+        HTTPException:
+            404 si la entrega no existe.
+            400 si la entrega ya fue corregida.
+            403 si el profesor no pertenece a la materia.
+            500 si ocurre un error interno.
+    """
     try:
         usuario = session.get(Usuario, user["sub"])
         if not usuario:
@@ -339,6 +591,46 @@ def corregir_entrega(entrega_id: UUID, datos: CorreccionCreate, user=Depends(get
 @router.put("/{publicacion_id}", response_model=PublicacionUpdate)
 def actualizar_publicacion(publicacion_id: UUID, data: PublicacionUpdate, user=Depends(get_current_user), 
                             session: Session = Depends(get_session)):
+    """
+    Endpoint para actualizar una publicación existente.
+
+    Solo se actualizarán los campos enviados en la request,
+    permitiendo un comportamiento similar a PATCH.
+
+    Control de acceso:
+
+    - ADMIN:
+        No puede actualizar publicaciones.
+
+    - PROFESOR:
+        Puede actualizar únicamente publicaciones que haya creado.
+
+    - ALUMNO:
+        No puede actualizar publicaciones.
+
+    Args:
+        publicacion_id (UUID):
+            ID de la publicación que se desea modificar.
+
+        data (PublicacionUpdate):
+            Datos que se desean actualizar.
+
+        user:
+            Usuario autenticado obtenido desde el token JWT.
+
+        session (Session):
+            Sesión de base de datos.
+
+    Returns:
+        PublicacionUpdate:
+            Información actualizada de la publicación.
+
+    Raises:
+        HTTPException:
+            404 si la publicación no existe.
+            403 si el usuario no tiene permisos.
+            500 si ocurre un error durante la actualización.
+    """
     try:
         usuario = session.get(Usuario, user["sub"])
         if not usuario:
@@ -374,6 +666,41 @@ def actualizar_publicacion(publicacion_id: UUID, data: PublicacionUpdate, user=D
 @router.delete("/{publicacion_id}")
 def eliminar_publicacion(publicacion_id: UUID, user=Depends(get_current_user), 
                             session: Session = Depends(get_session)):
+    """
+    Endpoint para eliminar una publicación.
+
+    El comportamiento depende del perfil del usuario:
+
+    - ADMIN:
+        Puede eliminar cualquier publicación definitivamente (hard delete).
+
+    - PROFESOR:
+        Puede eliminar únicamente publicaciones que haya creado.
+        La eliminación es lógica (soft delete), marcando la publicación como inactiva.
+
+    - ALUMNO:
+        No puede eliminar publicaciones.
+
+    Args:
+        publicacion_id (UUID):
+            ID de la publicación a eliminar.
+
+        user:
+            Usuario autenticado obtenido desde el token JWT.
+
+        session (Session):
+            Sesión de base de datos.
+
+    Returns:
+        dict:
+            Mensaje confirmando la eliminación.
+
+    Raises:
+        HTTPException:
+            404 si la publicación no existe.
+            403 si el usuario no tiene permisos.
+            500 si ocurre un error interno.
+    """
     try:
         usuario = session.get(Usuario, user["sub"])
         if not usuario:
@@ -410,6 +737,48 @@ def eliminar_publicacion(publicacion_id: UUID, user=Depends(get_current_user),
 
 @router.get("/archivos/{archivo_id}/download")
 def descargar_archivo(archivo_id: UUID, user=Depends(get_current_user), session: Session = Depends(get_session)):
+    """
+    Endpoint para generar una URL firmada de descarga de un archivo.
+
+    Puede tratarse de:
+    - archivo de publicación
+    - archivo de entrega de tarea
+
+    Se valida que el usuario tenga acceso a la materia
+    antes de permitir la descarga.
+
+    Control de acceso:
+
+    - ADMIN:
+        Puede descargar cualquier archivo.
+
+    - PROFESOR:
+        Puede descargar archivos de materias donde esté asignado.
+
+    - ALUMNO:
+        Puede descargar archivos de materias donde esté inscripto.
+        Solo puede acceder a sus propias entregas.
+
+    Args:
+        archivo_id (UUID):
+            ID del archivo almacenado.
+
+        user:
+            Usuario autenticado obtenido desde el token JWT.
+
+        session (Session):
+            Sesión de base de datos.
+
+    Returns:
+        dict:
+            URL firmada temporal para descargar el archivo desde Supabase Storage.
+
+    Raises:
+        HTTPException:
+            404 si el archivo no existe.
+            403 si el usuario no tiene permisos.
+            500 si ocurre un error interno.
+    """
     try:
         usuario = session.get(Usuario, user["sub"])
         if not usuario:
@@ -456,6 +825,8 @@ def descargar_archivo(archivo_id: UUID, user=Depends(get_current_user), session:
                                     MateriaCurso.id == publicacion.materia_curso_id,CursoAlumno.alumno_id == usuario.id)).first()
             if not relacion:
                 raise HTTPException(403, "No tiene acceso a esta materia")
+        elif usuario.perfil == PerfilUsuario.admin:
+            pass
 
         else:
             raise HTTPException(403, "Perfil no autorizado")

@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
+# Este schema se utiliza para la salida de datos de un archivo asociado a una publicación, incluyendo todos los campos relevantes.
 class ArchivoPublicacionOut(BaseModel):
     id: UUID
     fecha_subida: datetime

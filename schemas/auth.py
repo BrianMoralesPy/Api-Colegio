@@ -9,7 +9,7 @@ class RegisterBase(BaseModel): # Lo que entra al POST, se utiliza para registrar
     nombre: str
     apellido: str
     edad: int
-    foto_url: str | None = None
+    ruta_foto: str | None = None
 
     @field_validator("password")
     @classmethod

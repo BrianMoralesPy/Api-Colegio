@@ -1,10 +1,11 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field,Relationship
 import uuid
 from datetime import date
 from typing import Optional
 from sqlalchemy import Column
 from sqlalchemy.types import Enum as SAEnum
 from models.enums import TiposContrato
+from .usuario import Usuario
 # lo que usamos aca y en todo donde estan los models son las tablas de las bases de datos y los enums que tambien estan en la base de datos
 class Profesor(SQLModel, table=True):
     __tablename__ = "profesores"
@@ -16,3 +17,6 @@ class Profesor(SQLModel, table=True):
     legajo: Optional[str] = None
     tipo_contrato: TiposContrato = Field(sa_column=Column(SAEnum(TiposContrato, name="tipos_contrato", native_enum=True), nullable=True))
     activo: bool = False
+
+    # Relaciones
+    usuario: Optional[Usuario] = Relationship()

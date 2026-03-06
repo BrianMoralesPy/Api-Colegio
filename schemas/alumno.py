@@ -1,12 +1,12 @@
 from pydantic import BaseModel , Field, field_validator
 from uuid import UUID
-from datetime import date
-from models.enums import EstadosAlumno
+from datetime import date,datetime
+from models.enums import EstadosAlumno, EstadosAlumnosEnCurso, Turnos, PerfilUsuario
 from typing import Optional
 import re
 # Este schema se utiliza para la creación de un nuevo alumno, donde se requieren 
 # los campos nombre, apellido y edad, mientras que el perfil es opcional.
-class AlumnoOut(BaseModel): # Lo que sale al GET
+class AlumnoOut(BaseModel): # Lo que sale al GET, DATOS DEL ALUMNO, SE USA PARA MOSTRAR LOS DATOS BASICOS DEL ALUMNO EN EL PERFIL DEL ALUMNO
     id: UUID
     legajo: Optional[str]
     fecha_ingreso: Optional[date]
@@ -82,8 +82,74 @@ class AlumnoUpdate(BaseModel): # Lo que entra al PUT, todos los campos son opcio
 
         return value
 
+#Seccion de alumno en curso
+class UsuarioBasic(BaseModel): # DATOS DE LA TABLA USAARIO, LO USAMOS PARA TENER EL NOMBRE O APELLIDO O EDAD
+    id: UUID
+    nombre: str
+    apellido: str
+    edad: int
+    perfil: PerfilUsuario
+    ruta_foto: Optional[str] = None
+    fecha_registro: datetime
 
+    class Config:
+        from_attributes = True
 
+class AlumnoBasic(BaseModel): # DATOS DE LA TABLA ALUMNO, LO USAMOS PARA TENER EL LEGAJO O FECHA DE INGRESO O ESTADO, 
+    id: UUID
+    legajo: Optional[str]
+    fecha_ingreso: Optional[date]
+    estado: EstadosAlumno
+    observaciones: Optional[str]
+    activo: bool
+    usuario: UsuarioBasic | None = None
+    
+    class Config:
+        from_attributes = True
+class AlumnoEnCursoBasic(BaseModel): # LO MANDAMOS EN EL ROUTER Y LO USAMOS PARA CREAR Y OBTENER LOS DATOS BASICOS DE LA TABALA ALUMNO_EN_CURSO
+    id: UUID
+    alumno_id: UUID
+    curso_id: UUID
+    ciclo_lectivo: int
+    fecha_inicio: datetime
+    fecha_fin: Optional[datetime] = None
+    estado: EstadosAlumnosEnCurso
+    class Config:
+        from_attributes = True
 
+class CursoBasic(BaseModel): # LO USAMOS PARA MOSTRAR LOS DATOS BASICOS DEL CURSO EN EL PERFIL DEL ALUMNO, NO ES NECESARIO MOSTRAR TODOS LOS DATOS DEL CURSO
+    id: UUID
+    nombre: str
+    turno: Turnos
+    nivel: str
 
+    class Config:
+        from_attributes = True
 
+class AlumnoCursoOutFull(BaseModel): # LO USAMOS PARA MOSTRAR LA INFORMACION COMPLETA DEL ALUMNO EN CURSO, INCLUYENDO LOS DATOS DEL CURSO Y LOS DATOS DEL ALUMNO
+    id: UUID
+    ciclo_lectivo: int
+    fecha_inicio: datetime
+    fecha_fin: Optional[datetime] = None
+    estado: EstadosAlumnosEnCurso
+
+    curso: CursoBasic
+    alumno: AlumnoBasic
+
+    class Config:
+        from_attributes = True
+
+class AlumnoEnCursoCreate(BaseModel):   # SOLO SE USA EN LA FUNCION DE POST COMO DATA,  LO USAMOS PARA CREAR UN NUEVO ALUMNO EN CURSO, SE REQUIEREN LOS CAMPOS ALUMNO_ID, 
+                                        # CURSO_ID Y CICLO_LECTIVO, LOS DEMAS CAMPOS SON OPCIONALES
+    alumno_id: UUID
+    curso_id: UUID
+    ciclo_lectivo: int = Field(..., ge=2000, le=2100)
+    fecha_inicio: datetime = Field(default_factory=datetime.utcnow)
+    fecha_fin: Optional[datetime] = None
+    estado: EstadosAlumnosEnCurso = EstadosAlumnosEnCurso.cursando
+
+    @field_validator("ciclo_lectivo")
+    def validar_anio(cls, value):
+        if value < 2000:
+            raise ValueError("El ciclo lectivo debe ser un año válido")
+        return value

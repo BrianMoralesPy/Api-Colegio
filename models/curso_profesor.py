@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from uuid import UUID, uuid4
 from typing import Optional
 from sqlalchemy.types import Enum as SAEnum
@@ -6,6 +6,9 @@ from datetime import datetime
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import TIMESTAMP
 from models.enums import RolEnCurso
+from .materia_curso import MateriaCurso
+from .profesor import Profesor
+from .usuario import Usuario
 
 class CursoProfesor(SQLModel, table=True):
     __tablename__ = "curso_profesor"
@@ -16,3 +19,7 @@ class CursoProfesor(SQLModel, table=True):
     rol_en_curso: RolEnCurso = Field(sa_column=Column(SAEnum(RolEnCurso, name="roles_profesor_en_curso", native_enum=True), 
                                                                                                         nullable=False))
     fecha_asignacion: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True)),default_factory=datetime.utcnow)
+
+    materia_curso: Optional[MateriaCurso] = Relationship()
+    profesor: Optional[Profesor] = Relationship()
+

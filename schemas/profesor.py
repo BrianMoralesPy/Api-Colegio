@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field, field_validator
 from uuid import UUID
-from datetime import date
+from datetime import date,datetime
 from typing import Optional
-from models.enums import TiposContrato
+from models.enums import TiposContrato,RolEnCurso,Turnos
 import re
 # Este schema se utiliza para la creación de un nuevo profesor, donde se requieren los 
 # campos nombre, apellido y edad, mientras que el perfil es opcional.
@@ -79,3 +79,83 @@ class  ProfesorUpdate(BaseModel): # Lo que entra al PUT, todos los campos son op
             raise ValueError("La fecha de contratación no puede ser futura")
 
         return value
+    
+#Seccion de profesor en curso
+class CursoBasic(BaseModel):
+    id: UUID
+    nombre: str
+    turno: Turnos
+    nivel: str
+
+    class Config:
+        from_attributes = True
+class MateriaBasic(BaseModel):
+    id: UUID
+    nombre: str
+    codigo: str
+    descripcion: str
+
+    class Config:
+        from_attributes = True
+
+class MateriaCursoBasic(BaseModel):
+    id: UUID
+    ciclo_lectivo: int
+    carga_horaria: int
+
+    curso: CursoBasic
+    materia: MateriaBasic
+
+    class Config:
+        from_attributes = True
+class UsuarioBasic(BaseModel):
+    id: UUID
+    nombre: str
+    apellido: str
+
+    class Config:
+        from_attributes = True
+
+class ProfesorBasic(BaseModel): # Lo que sale al GET
+    id: UUID
+    fecha_contratacion: Optional[date]
+    titulo: Optional[str]
+    especialidad: Optional[str]
+    legajo: Optional[str]
+    tipo_contrato: Optional[TiposContrato]
+    activo: bool
+    usuario: UsuarioBasic
+
+    class Config:
+        from_attributes = True
+
+    class Config:
+        from_attributes = True
+class ProfesorCursoMateriaOutFull(BaseModel):
+    id: UUID
+    rol_en_curso: RolEnCurso
+    fecha_asignacion: datetime
+
+    profesor: ProfesorBasic
+    materia_curso: MateriaCursoBasic
+
+    class Config:
+        from_attributes = True
+
+class ProfesorEnCursoMateriaCreate(BaseModel):
+    profesor_id: UUID
+    materia_curso_id: UUID
+    rol_en_curso: RolEnCurso = RolEnCurso.titular
+    class Config:
+        from_attributes = True
+
+class ProfesorEnCursoMateriaBasic(BaseModel):
+    id: UUID
+    profesor_id: UUID
+    materia_curso_id: UUID
+    rol_en_curso: RolEnCurso
+    
+
+    class Config:
+        from_attributes = True
+
