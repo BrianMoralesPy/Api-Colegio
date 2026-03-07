@@ -72,6 +72,7 @@ https://api-colegio-baig.onrender.com/docs
 
 Documentación local:
 http://127.0.0.1:8000/docs
+```
 
 
 
@@ -172,5 +173,3 @@ http://127.0.0.1:8000/docs
 ![PUT coreccion_tarea](imgs_readme/publicaciones/coreccion_tarea.png)
 
 ![DELETE eliminar_publicacion](imgs_readme/publicaciones/eliminar_publicacion.png)
-
-```
