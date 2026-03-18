@@ -6,7 +6,7 @@ import time
 
 router = APIRouter(tags=["Health"])
 
-@router.get("/health", summary="Health check del servicio") # Decorador que define la ruta y la documentación de la ruta
+@router.api_route("/health", methods=["GET", "HEAD"]) # Decorador que define la ruta y la documentación de la ruta
 def health_check(session: Session = Depends(get_session)): # Dependencia que obtiene la sesión de la base de datos
     try:
         start = time.time()  # Tiempo de inicio
