@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from uuid import UUID
 from datetime import datetime
 from typing import Optional
@@ -29,3 +29,11 @@ class MateriaUpdate(BaseModel):
     codigo: Optional[str] = Field(None,max_length=10,min_length=3,pattern=r'^[A-Z0-9]+$')
     descripcion: Optional[str] = Field(None, max_length=255)
     activa: Optional[bool] = None
+    fecha_modificacion: Optional[datetime] = None
+    
+    @field_validator("fecha_modificacion", mode="before")
+    @classmethod
+    def set_fecha_actual_si_null(cls, value):
+        if value is None:
+            return datetime.utcnow()
+        return value

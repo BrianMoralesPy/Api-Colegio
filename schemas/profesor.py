@@ -1,8 +1,10 @@
 from pydantic import BaseModel, Field, field_validator
+from pydantic.config import ConfigDict
 from uuid import UUID
 from datetime import date,datetime
 from typing import Optional
 from models.enums import TiposContrato,RolEnCurso,Turnos
+from schemas.usuario import UsuarioUpdate, UsuarioOut
 import re
 # Este schema se utiliza para la creación de un nuevo profesor, donde se requieren los 
 # campos nombre, apellido y edad, mientras que el perfil es opcional.
@@ -20,18 +22,15 @@ class ProfesorOut(BaseModel): # Lo que sale al GET
 
 class ProfesorOutFull(BaseModel): # Lo que sale al GET con toda la info del usuario
     id: UUID
-    nombre: str
-    apellido: str
-    edad: int
-    perfil: Optional[str]
-    foto_url: Optional[str]
-    fecha_contratacion: Optional[date]
     titulo: Optional[str]
     especialidad: Optional[str]
+    fecha_contratacion: Optional[date]
     legajo: Optional[str]
     tipo_contrato: Optional[TiposContrato]
     activo: bool
-
+    
+    usuario: UsuarioOut
+    model_config = ConfigDict(from_attributes=True)
 class  ProfesorUpdate(BaseModel): # Lo que entra al PUT, todos los campos son opcionales porque el profesor puede querer actualizar solo algunos
     fecha_contratacion: Optional[date] = None
     titulo: Optional[str] = Field(default=None, min_length=2, max_length=50)
@@ -79,8 +78,12 @@ class  ProfesorUpdate(BaseModel): # Lo que entra al PUT, todos los campos son op
             raise ValueError("La fecha de contratación no puede ser futura")
 
         return value
+
+class ProfesorFullUpdate(BaseModel): # Lo que entra al PUT, todos los campos son opcionales porque el profesor puede querer actualizar solo algunos
+    profesor: ProfesorUpdate
+    usuario: UsuarioUpdate
     
-#Seccion de profesor en curso
+#Seccion de profesor en curso y materia al mismo tiempo
 class CursoBasic(BaseModel): # DATOS BASICOS DE CURSO
     id: UUID
     nombre: str
@@ -159,4 +162,3 @@ class ProfesorEnCursoMateriaBasic(BaseModel): # SCHEMA BASIC PARA VER LA SALIDA 
 
     class Config:
         from_attributes = True
-

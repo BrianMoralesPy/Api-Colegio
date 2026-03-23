@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlmodel import Session, text
-from services.configuration import get_session
+from core.database import get_session
 import time
 
 router = APIRouter(tags=["Health"])

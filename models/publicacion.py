@@ -19,3 +19,4 @@ class Publicacion(SQLModel, table=True):
     fecha_publicacion: datetime = Field(default_factory=datetime.utcnow)
     fecha_entrega: Optional[datetime] = None  # solo si es tarea
     activa: bool = Field(default=True)
+    fecha_actualizacion: Optional[datetime] = None

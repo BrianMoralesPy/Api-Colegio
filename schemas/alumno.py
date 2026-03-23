@@ -1,7 +1,9 @@
 from pydantic import BaseModel , Field, field_validator
+from pydantic.config import ConfigDict
 from uuid import UUID
 from datetime import date,datetime
 from models.enums import EstadosAlumno, EstadosAlumnosEnCurso, Turnos, PerfilUsuario
+from schemas.usuario import UsuarioUpdate, UsuarioOut
 from typing import Optional
 import re
 # Este schema se utiliza para la creación de un nuevo alumno, donde se requieren 
@@ -20,16 +22,14 @@ class AlumnoOut(BaseModel): # Lo que sale al GET, DATOS DEL ALUMNO, SE USA PARA 
 
 class AlumnoOutFull(BaseModel): # Lo que sale al GET con toda la info del usuario, se utiliza para mostrar el perfil del alumno
     id: UUID
-    nombre: str
-    apellido: str
-    edad: int
-    perfil: Optional[str]
-    foto_url: Optional[str] = None
-    legajo: Optional[str]
-    fecha_ingreso: Optional[date]
+    legajo: str | None
+    fecha_ingreso: date | None
     estado: EstadosAlumno
-    observaciones: Optional[str]
+    observaciones: str | None
     activo: bool
+
+    usuario: UsuarioOut
+    model_config = ConfigDict(from_attributes=True)
 
 class AlumnoUpdate(BaseModel): # Lo que entra al PUT, todos los campos son opcionales porque el alumno puede querer actualizar solo algunos, se utiliza para que el alumno pueda actualizar su perfil desde la app
     legajo: Optional[str] = Field(default=None,min_length=2,max_length=10,description="Legajo del alumno")
@@ -81,6 +81,9 @@ class AlumnoUpdate(BaseModel): # Lo que entra al PUT, todos los campos son opcio
             raise ValueError("Las observaciones no pueden estar vacías")
 
         return value
+class AlumnoFullUpdate(BaseModel): # Lo que entra al PUT, todos los campos son opcionales porque el alumno puede querer actualizar solo algunos
+    alumno: AlumnoUpdate
+    usuario: UsuarioUpdate
 
 #Seccion de alumno en curso
 class UsuarioBasic(BaseModel): # DATOS DE LA TABLA USAARIO, LO USAMOS PARA TENER EL NOMBRE O APELLIDO O EDAD
@@ -144,7 +147,7 @@ class AlumnoEnCursoCreate(BaseModel):   # SOLO SE USA EN LA FUNCION DE POST COMO
     alumno_id: UUID
     curso_id: UUID
     ciclo_lectivo: int = Field(..., ge=2000, le=2100)
-    fecha_inicio: datetime = Field(default_factory=datetime.utcnow)
+    fecha_inicio: datetime  = Field(default_factory=datetime.utcnow)
     fecha_fin: Optional[datetime] = None
     estado: EstadosAlumnosEnCurso = EstadosAlumnosEnCurso.cursando
 
@@ -152,4 +155,12 @@ class AlumnoEnCursoCreate(BaseModel):   # SOLO SE USA EN LA FUNCION DE POST COMO
     def validar_anio(cls, value):
         if value < 2000:
             raise ValueError("El ciclo lectivo debe ser un año válido")
+        return value
+    
+    
+    @field_validator("fecha_inicio", mode="before")
+    @classmethod
+    def set_fecha_actual_si_null(cls, value):
+        if value is None:
+            return datetime.utcnow()
         return value

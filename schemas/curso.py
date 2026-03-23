@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from uuid import UUID
 from datetime import datetime
 from typing import Optional
@@ -31,3 +31,11 @@ class CursoUpdate(BaseModel):   # Este schema se utiliza para la actualización 
     turno: Optional[Turnos] = None
     activo: Optional[bool] = None
     nivel: Optional[str] = Field(None, max_length=100)
+    fecha_modificacion: Optional[datetime] = None
+    
+    @field_validator("fecha_modificacion", mode="before")
+    @classmethod
+    def set_fecha_actual_si_null(cls, value):
+        if value is None:
+            return datetime.utcnow()
+        return value

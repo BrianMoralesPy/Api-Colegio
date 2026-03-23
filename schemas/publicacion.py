@@ -1,7 +1,7 @@
 from pydantic import BaseModel, model_validator, Field, field_validator
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime,timezone
 from models.enums import TipoPublicacion
 
 
@@ -15,6 +15,7 @@ class PublicacionOut(BaseModel): # Lo que sale al GET
     fecha_publicacion: datetime
     fecha_entrega: Optional[datetime] = None
     activa: bool
+    fecha_actualizacion: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -40,7 +41,6 @@ class PublicacionUpdate(BaseModel):
     descripcion: Optional[str] = None
     tipo: Optional[TipoPublicacion] = None
     fecha_entrega: Optional[datetime] = None
-    
     @model_validator(mode="after")
     def validar_update(self):
         if self.tipo == TipoPublicacion.tarea and not self.fecha_entrega:

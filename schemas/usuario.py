@@ -31,3 +31,12 @@ class UsuarioUpdate(BaseModel):
             raise ValueError("Solo se permiten letras y espacios")
         
         return value.strip().title()
+
+    @field_validator("edad")
+    @classmethod
+    def validar_edad(cls, value: Optional[int]) -> Optional[int]:
+        if value is None:
+            return value
+        if value < 5 or value > 100:
+            raise ValueError("La edad debe estar entre 5 y 18")
+        return value
