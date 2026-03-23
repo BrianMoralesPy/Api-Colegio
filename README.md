@@ -13,6 +13,21 @@ api-colegio/
 │  └─ infrastructure/
 |  |  ├─ storage.py
 |  |  ├─ supabase.py
+│  └─ models/
+│  │  ├─ alumno.py                 
+│  │  ├─ archivo_publicacion.py    
+│  │  ├─ curso_alumno.py           
+│  │  ├─ curso_profesor.py         
+│  │  ├─ curso.py                  
+│  │  ├─ entrega.py                
+|  |  ├─ enums.py                  
+|  |  ├─ historial_contrasenas.py  
+│  │  ├─ materia_curso.py          
+│  │  ├─ materia.py                
+|  |  ├─ profesor.py               
+│  │  ├─ publicacion.py            
+│  │  ├─ tarea_entregada.py        
+|  |  ├─ usuario.py 
 │  └─ permissions/
 │  |  ├─ publicacion_permissions.py
 │  └─ repositories/
@@ -28,22 +43,7 @@ api-colegio/
 |  |  ├─ profesor_repository.py               
 │  │  ├─ publicacion_repository.py            
 │  │  ├─ tarea_entregada_repository.py        
-|  |  ├─ usuario_repository.py 
-│  └─ models/
-│  │  ├─ alumno.py                 
-│  │  ├─ archivo_publicacion.py    
-│  │  ├─ curso_alumno.py           
-│  │  ├─ curso_profesor.py         
-│  │  ├─ curso.py                  
-│  │  ├─ entrega.py                
-|  |  ├─ enums.py                  
-|  |  ├─ historial_contrasenas.py  
-│  │  ├─ materia_curso.py          
-│  │  ├─ materia.py                
-|  |  ├─ profesor.py               
-│  │  ├─ publicacion.py            
-│  │  ├─ tarea_entregada.py        
-|  |  ├─ usuario.py                
+|  |  ├─ usuario_repository.py                
 |  └─ routers/
 |  |  ├─ alumnos_en_curso.py  
 |  |  ├─ alumnos.py                
