@@ -1,12 +1,9 @@
 # 🎓 API Colegio Backend REST profesional para gestión académica
 
-## 📌 API Colegio es un backend RESTful diseñado para gestionar 
-## un sistema educativo completo (alumnos, profesores, cursos y materias). 
-## El proyecto está construido con un enfoque profesional, aplicando principios de arquitectura 
-## limpia y separación por capas, lo que lo hace escalable, mantenible y listo para entornos productivos.
+## 📌 API Colegio es un backend RESTful diseñado para gestionar un sistema educativo completo (alumnos, profesores, cursos y materias).  El proyecto está construido con un enfoque profesional, aplicando principios de arquitectura limpia y separación por capas, lo que lo hace escalable, mantenible y listo para entornos productivos.
 
 ## 🌐 Demo
-[text](https://api-colegio-baig.onrender.com/docs)
+[Link a la API](https://api-colegio-baig.onrender.com/docs)
 
 ## 🧠 Objetivo
 Este proyecto fue desarrollado como pieza de portfolio para demostrar:
