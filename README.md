@@ -1,97 +1,58 @@
-```
-🏫 API REST de Gestion De Alumnos con FAST API, SQLModel Python 3.12 ,
-Supabase PostgreSQL. Permite crear, leer, actualizar y eliminar registros,
-con validaciones de datos.
+# 🎓 API Colegio Backend REST profesional para gestión académica
 
-📁 Estructura del proyecto
-api-colegio/
-|  └─ core/
-|  |  └─ security/
-|  |  |  ├─ auth.py 
-|  |  |  ├─ hashing.py
-|  |  |  ├─ permissions.py
-|  |  ├─ config.py
-|  |  ├─ databse.py
-│  └─ infrastructure/
-|  |  ├─ storage.py
-|  |  ├─ supabase.py
-│  └─ models/
-│  │  ├─ alumno.py                 
-│  │  ├─ archivo_publicacion.py    
-│  │  ├─ curso_alumno.py           
-│  │  ├─ curso_profesor.py         
-│  │  ├─ curso.py                  
-│  │  ├─ entrega.py                
-|  |  ├─ enums.py                  
-|  |  ├─ historial_contrasenas.py  
-│  │  ├─ materia_curso.py          
-│  │  ├─ materia.py                
-|  |  ├─ profesor.py               
-│  │  ├─ publicacion.py            
-│  │  ├─ tarea_entregada.py        
-|  |  ├─ usuario.py 
-│  └─ permissions/
-│  |  ├─ publicacion_permissions.py
-│  └─ repositories/
-│  │  ├─ alumno_repository.py                 
-│  │  ├─ archivo_publicacion_repository.py    
-│  │  ├─ curso_alumno_repository.py           
-│  │  ├─ curso_profesor_repository.py         
-│  │  ├─ curso_repository.py                  
-│  │  ├─ entrega_repository.py                                  
-|  |  ├─ historial_repository.py  
-│  │  ├─ materia_curso_repository.py          
-│  │  ├─ materia_repository.py                
-|  |  ├─ profesor_repository.py               
-│  │  ├─ publicacion_repository.py            
-│  │  ├─ tarea_entregada_repository.py        
-|  |  ├─ usuario_repository.py                
-|  └─ routers/
-|  |  ├─ alumnos_en_curso.py  
-|  |  ├─ alumnos.py                
-|  |  ├─ auth.py                   
-|  |  ├─ cursos.py
-|  |  ├─ health.py                  
-|  |  ├─ materia_curso.py          
-|  |  ├─ materias.py
-|  |  ├─ profesores_en_curso.py                
-|  |  ├─ profesores.py             
-|  |  ├─ publicaciones.py          
-|  └─ schemas/
-|  |  ├─ alumno.py                 
-|  |  ├─ archivo_publicacion.py    
-|  |  ├─ auth.py                   
-|  |  ├─ curso.py                  
-|  |  ├─ entregas.py               
-|  |  ├─ materia_curso.py          
-|  |  ├─ materia.py                
-|  |  ├─ me.py                     
-|  |  ├─ profesor.py              
-|  |  ├─ publicacion.py            
-|  |  ├─ usuario.py
-|  └─ services/
-|  |  ├─ alumno_service.py                 
-|  |  ├─ auth_service.py    
-|  |  ├─ curso_alumno_service.py                   
-|  |  ├─ curso_profesor_service.py                  
-|  |  ├─ curso_service.py               
-|  |  ├─ materia_curso_service.py          
-|  |  ├─ materia_service.py                
-|  |  ├─ profesor_service.py                     
-|  |  ├─ publicacion_service.py              
-|  |  ├─ storage_service.py                           
-|  ├─ venv                         
-│  ├─ .dockerignore                
-|  ├─ .env                        
-|  ├─ .gitignore                               
-│  ├─ Dockerfile                   
-│  ├─ main.py                        
-|  ├─ README.md                     
-|  ├─ requirements.txt             
+## 📌 API Colegio es un backend RESTful diseñado para gestionar 
+## un sistema educativo completo (alumnos, profesores, cursos y materias). 
+## El proyecto está construido con un enfoque profesional, aplicando principios de arquitectura 
+## limpia y separación por capas, lo que lo hace escalable, mantenible y listo para entornos productivos.
 
+## 🌐 Demo
+[text](https://api-colegio-baig.onrender.com/docs)
 
+## 🧠 Objetivo
+Este proyecto fue desarrollado como pieza de portfolio para demostrar:
+- Diseño de APIs REST escalables
+- Organización profesional de código backend
+- Integración con servicios externos
+- Buenas prácticas reales de desarrollo
 
-⚡ Tecnologías utilizadas
+## ⚙️ Instalación
+- git clone https://github.com/tu-usuario/api-colegio.git
+- cd api-colegio
+- python -m venv venv
+- source venv/bin/activate  # Windows: venv\Scripts\activate
+- pip install -r requirements.txt
+
+## 🔐 Variables de entorno
+- SUPABASE_URL=your_url
+- SUPABASE_KEY=your_key
+- SUPABASE_SERVICE_ROLE_KEY=your_service_key
+- BUCKET_NAME=your_bucket
+
+## ▶️ Ejecucion
+uvicorn main:app --reload
+
+## 🛠️ Estructura del proyecto
+app/
+│
+├── api/               # Routers
+├── core/              # Config, DB, seguridad
+├── models/            # Entidades
+├── schemas/           # Validación (Pydantic)
+├── services/          # Lógica de negocio
+├── repositories/      # Acceso a datos
+├── infrastructure/    # Supabase / storage
+
+## 🧪 Testing
+Preparado para integrar:
+- pytest
+- TestClient (FastAPI)
+- mocks de repositorios
+
+## ⚠️ Limitaciones
+- Tests incompletos
+- Manejo de errores mejorable
+           
+## ⚡ Tecnologías utilizadas
 - Python 3.10+
 - FastAPI
 - SQLModel
@@ -103,19 +64,7 @@ api-colegio/
 - Documentación SQLModel
 - Pydantic Validators
 
-📷 Documentación visual de endpoints
-Las siguientes capturas corresponden a la documentación automática generada por FastAPI Swagger UI.
-
-Documentación online:
-https://api-colegio-baig.onrender.com/docs
-
-Documentación local:
-http://127.0.0.1:8000/docs
-```
-
-
-
-- Endpoints relacionados con la gestión de alumnos.
+## - Endpoints relacionados con la gestión de alumnos.
 
 ![GET get_alumnos](imgs_readme/alumnos/get_alumnos.png)
 
@@ -131,7 +80,7 @@ http://127.0.0.1:8000/docs
 
 ![DELETE delete_alumno_de_curso](imgs_readme/alumnos/delete_alumno_de_curso.png)
 
-- Endpoints relacionados con la gestión Autentificacion, Creacion de Cuenta, e Inicio de Sesion para los roles.
+## - Endpoints relacionados con la gestión Autentificacion, Creacion de Cuenta, e Inicio de Sesion para los roles.
 
 ![GET obtener_datos_usuario_logueado](imgs_readme/auth/obtener_datos_usuario_logueado.png)
 
@@ -145,7 +94,7 @@ http://127.0.0.1:8000/docs
 
 ![POST verificar_credenciales](imgs_readme/auth/verificar_credenciales.png)
 
-- Endpoints relacionados con la gestión de cursos en el sistema
+## - Endpoints relacionados con la gestión de cursos en el sistema
 
 ![GET get_cursos](imgs_readme/cursos/get_cursos.png)
 
@@ -157,7 +106,7 @@ http://127.0.0.1:8000/docs
 
 ![DELETE delete_curso](imgs_readme/cursos/delete_curso.png)
 
-- Endpoints relacionados con la gestión de materias en el sistema
+## - Endpoints relacionados con la gestión de materias en el sistema
 
 ![GET get_materias](imgs_readme/materias/get_materias.png)
 
@@ -169,7 +118,7 @@ http://127.0.0.1:8000/docs
 
 ![DELETE delete_materia](imgs_readme/materias/delete_materia.png)
 
-- Endpoints relacionados con la gestión de la relacion materia_curso en el sistema
+## - Endpoints relacionados con la gestión de la relacion materia_curso en el sistema
 
 ![GET get_materias_curso](imgs_readme/materiasCurso/get_materias_curso.png)
 
@@ -177,7 +126,7 @@ http://127.0.0.1:8000/docs
 
 ![DELETE delete_materia_curso](imgs_readme/materiasCurso/delete_materia_curso.png)
 
-- Endpoints relacionados con la gestión de profesores.
+## - Endpoints relacionados con la gestión de profesores.
 
 ![GET get_profesores](imgs_readme/profesores/get_profesores.png)
 
@@ -193,7 +142,7 @@ http://127.0.0.1:8000/docs
 
 ![DELETE delete_profesor_de_curso_materia](imgs_readme/profesores/delete_profesor_de_curso_materia.png)
 
-- Endpoints relacionados con la gestión de publicaciones, entregas, subidas de archivos.
+## - Endpoints relacionados con la gestión de publicaciones, entregas, subidas de archivos.
 
 ![GET leer_datos_publicacion](imgs_readme/publicaciones/leer_datos_publicacion.png)
 
