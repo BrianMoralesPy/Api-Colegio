@@ -1,5 +1,7 @@
 ```
-🏫 API REST de Gestion De Alumnos con FAST API, SQLModel Python 3.12 , Supabase PostgreSQL. Permite crear, leer, actualizar y eliminar registros, con validaciones de datos.
+🏫 API REST de Gestion De Alumnos con FAST API, SQLModel Python 3.12 ,
+Supabase PostgreSQL. Permite crear, leer, actualizar y eliminar registros,
+con validaciones de datos.
 
 📁 Estructura del proyecto
 api-colegio/
