@@ -27,7 +27,7 @@ Este proyecto fue desarrollado como pieza de portfolio para demostrar:
 
 ## ▶️ Ejecucion
 uvicorn main:app --reload
-
+´´´
 ## 🛠️ Estructura del proyecto
 app/
 │
@@ -38,7 +38,7 @@ app/
 ├── services/          # Lógica de negocio
 ├── repositories/      # Acceso a datos
 ├── infrastructure/    # Supabase / storage
-
+´´´
 ## 🧪 Testing
 Preparado para integrar:
 - pytest
